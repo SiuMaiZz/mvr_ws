@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/cpp-readline-example.dir/main.cpp.o  -o cpp-readline-example  -Wl,-rpath,/home/shamim/catkin_ws/Motor_ws/src/motor_control/app/build/thirdparty/cpp-readline/src -lncurses ../src/libcpp-readline.so.0.1.0 -lreadline 

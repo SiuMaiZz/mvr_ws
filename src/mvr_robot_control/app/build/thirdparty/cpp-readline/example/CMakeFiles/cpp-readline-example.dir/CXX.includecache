@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/shamim/catkin_ws/Motor_ws/src/motor_control/app/thirdparty/cpp-readline/example/main.cpp
+../src/Console.hpp
+/home/shamim/catkin_ws/Motor_ws/src/motor_control/app/thirdparty/cpp-readline/src/Console.hpp
+iostream
+-
+string
+-
+
+/home/shamim/catkin_ws/Motor_ws/src/motor_control/app/thirdparty/cpp-readline/src/Console.hpp
+functional
+-
+string
+-
+vector
+-
+memory
+-
+

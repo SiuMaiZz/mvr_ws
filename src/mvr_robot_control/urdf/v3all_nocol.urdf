@@ -1,0 +1,1331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="v3all">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-1E-06 5E-07 0.0919"
+        rpy="0 0 0" />
+      <mass
+        value="5.9904" />
+      <inertia
+        ixx="0.039668"
+        ixy="-3E-06"
+        ixz="-1.4E-05"
+        iyy="0.026908"
+        iyz="-5E-06"
+        izz="0.028199" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7529 0.7529 0.7529 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0. 0.43"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="0.21 0.52 0.86"/>
+      </geometry>
+    </collision>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/base_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <link
+    name="left_hip_pitch_link">
+    <inertial>
+      <origin
+        xyz="0.0013 2E-05 0.0723"
+        rpy="0 0 0" />
+      <mass
+        value="1.51575" />
+      <inertia
+        ixx="0.003169"
+        ixy="0"
+        ixz="-1.4E-05"
+        iyy="0.002662"
+        iyz="4E-06"
+        izz="0.001994" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_hip_pitch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_hip_pitch_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_hip_pitch_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0717 0.0713"
+      rpy="-1.8326 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_hip_pitch_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="1"
+      effort="150"
+      velocity="140" />
+  </joint>
+  <link
+    name="left_hip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0859 -0.023 -0.0056"
+        rpy="0 0 0" />
+      <mass
+        value="1.883003" />
+      <inertia
+        ixx="0.003605"
+        ixy="-0.00063"
+        ixz="0.000351"
+        iyy="0.005783"
+        iyz="9.2E-05"
+        izz="0.005331" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_hip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_hip_roll_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_hip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.0035 0 0.082"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="left_hip_pitch_link" />
+    <child
+      link="left_hip_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.4"
+      upper="1"
+      effort="90"
+      velocity="157" />
+  </joint>
+  <link
+    name="left_hip_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.0038 -0.002 0.2637"
+        rpy="0 0 0" />
+      <mass
+        value="3.121094" />
+      <inertia
+        ixx="0.012279"
+        ixy="5E-06"
+        ixz="5.8E-05"
+        iyy="0.010554"
+        iyz="0"
+        izz="0.005795" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_hip_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_hip_yaw_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_hip_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5708 0 -1.309" />
+    <parent
+      link="left_hip_roll_link" />
+    <child
+      link="left_hip_yaw_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="1.5"
+      effort="90"
+      velocity="157" />
+  </joint>
+  <link
+    name="left_knee_link">
+    <inertial>
+      <origin
+        xyz="0.0014 0.1786 -0.0035"
+        rpy="0 0 0" />
+      <mass
+        value="2.333767" />
+      <inertia
+        ixx="0.021691"
+        ixy="-0.000614"
+        ixz="-1.8E-05"
+        iyy="0.002347"
+        iyz="-0.000306"
+        izz="0.021125" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_knee_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.8078 0.8431 0.9059 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_knee_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_knee_joint"
+    type="revolute">
+    <origin
+      xyz="0.003 -0.002 0.277"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="left_hip_yaw_link" />
+    <child
+      link="left_knee_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="1.5"
+      effort="150"
+      velocity="140" />
+  </joint>
+  <link
+    name="left_ankle_pitch_link">
+    <inertial>
+      <origin
+        xyz="0 0.004 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.118663" />
+      <inertia
+        ixx="1.8E-05"
+        ixy="0"
+        ixz="0"
+        iyy="3.3E-05"
+        iyz="0"
+        izz="3.3E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_ankle_pitch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792 0.819 0.933 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_ankle_pitch_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_ankle_pitch_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.3791 -0.003"
+      rpy="0 0 0" />
+    <parent
+      link="left_knee_link" />
+    <child
+      link="left_ankle_pitch_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="1.5"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="left_ankle_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0204 0.0008 0.0528"
+        rpy="0 0 0" />
+      <mass
+        value="0.21168" />
+      <inertia
+        ixx="0.000603"
+        ixy="1E-06"
+        ixz="3E-06"
+        iyy="0.000509"
+        iyz="0"
+        izz="0.000135" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_ankle_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898 0.9176 0.9294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_ankle_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_ankle_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="left_ankle_pitch_link" />
+    <child
+      link="left_ankle_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.5"
+      upper="0.5"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="right_hip_pitch_link">
+    <inertial>
+      <origin
+        xyz="0.0013 -2E-05 0.072"
+        rpy="0 0 0" />
+      <mass
+        value="1.51575" />
+      <inertia
+        ixx="0.003161"
+        ixy="0"
+        ixz="-1E-05"
+        iyy="0.002655"
+        iyz="-3E-06"
+        izz="0.001994" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_hip_pitch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7529 0.7529 0.7529 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_hip_pitch_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_hip_pitch_joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.0717 0.0713"
+      rpy="1.8326 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_hip_pitch_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1.5"
+      effort="150"
+      velocity="140" />
+  </joint>
+  <link
+    name="right_hip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0859 0.023 -0.0056"
+        rpy="0 0 0" />
+      <mass
+        value="1.883286" />
+      <inertia
+        ixx="0.003605"
+        ixy="0.000629"
+        ixz="0.000351"
+        iyy="0.005784"
+        iyz="-9.3E-05"
+        izz="0.005331" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_hip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_hip_roll_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_hip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.0035 0 0.082"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="right_hip_pitch_link" />
+    <child
+      link="right_hip_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="0.4"
+      effort="90"
+      velocity="157" />
+  </joint>
+  <link
+    name="right_hip_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.0038 0.002 0.2637"
+        rpy="0 0 0" />
+      <mass
+        value="3.121094" />
+      <inertia
+        ixx="0.012278"
+        ixy="0"
+        ixz="5.9E-05"
+        iyy="0.010552"
+        iyz="-1E-06"
+        izz="0.005793" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_hip_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_hip_yaw_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_hip_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="-1.5708 0 1.309" />
+    <parent
+      link="right_hip_roll_link" />
+    <child
+      link="right_hip_yaw_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="1.5"
+      effort="90"
+      velocity="157" />
+  </joint>
+  <link
+    name="right_knee_link">
+    <inertial>
+      <origin
+        xyz="0.0013 -0.1813 -0.0035"
+        rpy="0 0 0" />
+      <mass
+        value="2.344445" />
+      <inertia
+        ixx="0.022495"
+        ixy="0.000592"
+        ixz="-1.9E-05"
+        iyy="0.002341"
+        iyz="0.000314"
+        izz="0.021942" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_knee_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.807 0.843 0.905 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_knee_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_knee_joint"
+    type="revolute">
+    <origin
+      xyz="0.003 0.002 0.277"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="right_hip_yaw_link" />
+    <child
+      link="right_knee_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.5"
+      upper="0"
+      effort="150"
+      velocity="140" />
+  </joint>
+  <link
+    name="right_ankle_pitch_link">
+    <inertial>
+      <origin
+        xyz="0 -0.0048 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.098947" />
+      <inertia
+        ixx="1.7E-05"
+        ixy="0"
+        ixz="0"
+        iyy="2.5E-05"
+        iyz="0"
+        izz="2.6E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_ankle_pitch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792 0.819 0.933 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_ankle_pitch_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_ankle_pitch_joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.3791 -0.003"
+      rpy="0 0 0" />
+    <parent
+      link="right_knee_link" />
+    <child
+      link="right_ankle_pitch_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.5"
+      upper="1.5"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="right_ankle_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0204 0.0008 0.0528"
+        rpy="0 0 0" />
+      <mass
+        value="0.21168" />
+      <inertia
+        ixx="0.000603"
+        ixy="1E-06"
+        ixz="3E-06"
+        iyy="0.000509"
+        iyz="0"
+        izz="0.000135" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_ankle_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898 0.917 0.929 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_ankle_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ankle_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="right_ankle_pitch_link" />
+    <child
+      link="right_ankle_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.5"
+      upper="0.5"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="waist_link">
+    <inertial>
+      <origin
+        xyz="0.002 1E-04 0.2569"
+        rpy="0 0 0" />
+      <mass
+        value="11.494" />
+      <inertia
+        ixx="0.2006"
+        ixy="6.8E-05"
+        ixz="0.004701"
+        iyy="0.15896"
+        iyz="-2.9E-05"
+        izz="0.077548" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/waist_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.592 0.666 0.682 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/waist_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="waist_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0.16799"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="waist_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.5"
+      upper="0.5"
+      effort="90"
+      velocity="157" />
+  </joint>
+  <link
+    name="head_link">
+    <inertial>
+      <origin
+        xyz="0.0094 0.0007 0.1407"
+        rpy="0 0 0" />
+      <mass
+        value="0.414628" />
+      <inertia
+        ixx="0.002188"
+        ixy="0"
+        ixz="8E-05"
+        iyy="0.001664"
+        iyz="6E-06"
+        izz="0.000611" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/head_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898 0.917 0.929 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/head_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="head_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0.4583"
+      rpy="0 0 0" />
+    <parent
+      link="waist_link" />
+    <child
+      link="head_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="left_arm_pitch_higher_link">
+    <inertial>
+      <origin
+        xyz="0.0154 -5E-06 0.1253"
+        rpy="0 0 0" />
+      <mass
+        value="2.5818" />
+      <inertia
+        ixx="0.002631"
+        ixy="0"
+        ixz="-1.6E-05"
+        iyy="0.002105"
+        iyz="1E-06"
+        izz="0.001799" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_arm_pitch_higher_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.592 0.666 0.682 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_arm_pitch_higher_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_arm_pitch_higher_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0879 0.3801"
+      rpy="-1.309 0 0" />
+    <parent
+      link="waist_link" />
+    <child
+      link="left_arm_pitch_higher_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="1"
+      effort="60"
+      velocity="149" />
+  </joint>
+  <link
+    name="left_arm_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0803 0.021 0.0083"
+        rpy="0 0 0" />
+      <mass
+        value="1.1713" />
+      <inertia
+        ixx="0.000686"
+        ixy="0.000164"
+        ixz="-0.000331"
+        iyy="0.001253"
+        iyz="8.5E-05"
+        izz="0.001077" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_arm_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.807 0.843 0.905 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_arm_roll_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_arm_roll_joint"
+    type="revolute">
+    <origin
+      xyz="-0.0036 0.0036 0.126"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="left_arm_pitch_higher_link" />
+    <child
+      link="left_arm_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.4"
+      upper="1.5"
+      effort="60"
+      velocity="149" />
+  </joint>
+  <link
+    name="left_arm_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.001 0.0031 0.2006"
+        rpy="0 0 0" />
+      <mass
+        value="1.3557" />
+      <inertia
+        ixx="0.002511"
+        ixy="0"
+        ixz="1.9E-05"
+        iyy="0.002598"
+        iyz="4E-06"
+        izz="0.000808" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_arm_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.807 0.843 0.905 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_arm_yaw_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_arm_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0.0005"
+      rpy="1.5708 0 -1.8326" />
+    <parent
+      link="left_arm_roll_link" />
+    <child
+      link="left_arm_yaw_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="left_arm_pitch_lower_link">
+    <inertial>
+      <origin
+        xyz="1E-06 0.1289 -0.0075"
+        rpy="0 0 0" />
+      <mass
+        value="0.165316" />
+      <inertia
+        ixx="0.001027"
+        ixy="0"
+        ixz="0"
+        iyy="9.3E-05"
+        iyz="-0.000178"
+        izz="0.00097" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/left_arm_pitch_lower_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898 0.917 0.929 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/left_arm_pitch_lower_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="left_arm_pitch_lower_joint"
+    type="revolute">
+    <origin
+      xyz="0.0075 0.0031 0.2177"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="left_arm_yaw_link" />
+    <child
+      link="left_arm_pitch_lower_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.5"
+      upper="0"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="right_arm_pitch_higher_link">
+    <inertial>
+      <origin
+        xyz="0.0154 4E-06 0.1253"
+        rpy="0 0 0" />
+      <mass
+        value="2.5818" />
+      <inertia
+        ixx="0.002631"
+        ixy="0"
+        ixz="-1.6E-05"
+        iyy="0.002105"
+        iyz="-1E-06"
+        izz="0.001799" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_arm_pitch_higher_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.592 0.666 0.682 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_arm_pitch_higher_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_arm_pitch_higher_joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.0879 0.3801"
+      rpy="1.309 0 0" />
+    <parent
+      link="waist_link" />
+    <child
+      link="right_arm_pitch_higher_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1.5"
+      effort="60"
+      velocity="149" />
+  </joint>
+  <link
+    name="right_arm_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.0838 -0.0225 0.0076"
+        rpy="0 0 0" />
+      <mass
+        value="1.1713" />
+      <inertia
+        ixx="0.000686"
+        ixy="-0.000163"
+        ixz="-0.000331"
+        iyy="0.001254"
+        iyz="-8.5E-05"
+        izz="0.001077" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_arm_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.807 0.843 0.905 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_arm_roll_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_arm_roll_joint"
+    type="revolute">
+    <origin
+      xyz="-0.003 0 0.1275"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="right_arm_pitch_higher_link" />
+    <child
+      link="right_arm_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1.5"
+      upper="0.4"
+      effort="60"
+      velocity="149" />
+  </joint>
+  <link
+    name="right_arm_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.0015212 -0.0030023 0.20448"
+        rpy="0 0 0" />
+      <mass
+        value="1.3557" />
+      <inertia
+        ixx="0.002511"
+        ixy="0"
+        ixz="1.9E-05"
+        iyy="0.002598"
+        iyz="3E-06"
+        izz="0.000808" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_arm_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.80784 0.84314 0.90588 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_arm_yaw_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_arm_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="-1.5708 0 1.8326" />
+    <parent
+      link="right_arm_roll_link" />
+    <child
+      link="right_arm_yaw_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="36"
+      velocity="89" />
+  </joint>
+  <link
+    name="right_arm_pitch_lower_link">
+    <inertial>
+      <origin
+        xyz="1E-06 -0.1289 -0.0075"
+        rpy="0 0 0" />
+      <mass
+        value="0.165316" />
+      <inertia
+        ixx="0.001027"
+        ixy="0"
+        ixz="0"
+        iyy="9.3E-05"
+        iyz="0.000178"
+        izz="0.00097" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://mvr_robot_control/meshes/right_arm_pitch_lower_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752 0.752 0.752 1" />
+      </material>
+    </visual>
+<!--    <collision>-->
+<!--      <origin-->
+<!--        xyz="0 0 0"-->
+<!--        rpy="0 0 0" />-->
+<!--      <geometry>-->
+<!--        <mesh-->
+<!--          filename="package://mvr_robot_control/meshes/right_arm_pitch_lower_link.STL" />-->
+<!--      </geometry>-->
+<!--    </collision>-->
+  </link>
+  <joint
+    name="right_arm_pitch_lower_joint"
+    type="revolute">
+    <origin
+      xyz="0.007 -0.003 0.2215"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="right_arm_yaw_link" />
+    <child
+      link="right_arm_pitch_lower_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="1.5"
+      effort="36"
+      velocity="89" />
+  </joint>
+</robot>
