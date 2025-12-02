@@ -40,15 +40,15 @@ bool BotHW::init(ros::NodeHandle& nh) {
     EtherCAT_Send_Command_New((YKSMotorData*)mvrSendDefaultcmd_);
     EtherCAT_Get_State_New();
 
-    // joint_limits_.resize(TOTAL_MOTORS);
+    joint_limits_.resize(TOTAL_MOTORS);
     
-    // for (int i = 0; i < TOTAL_MOTORS; ++i) {
-    //     std::string param_name = "joint_limits/" + std::to_string(i);
-    //     nh.getParam(param_name + "/min_position", joint_limits_[i].min_position);
-    //     nh.getParam(param_name + "/max_position", joint_limits_[i].max_position);
-    //     nh.getParam(param_name + "/max_velocity", joint_limits_[i].max_velocity);
-    //     nh.getParam(param_name + "/max_effort", joint_limits_[i].max_effort);
-    // }
+    for (int i = 0; i < TOTAL_MOTORS; ++i) {
+        std::string param_name = "joint_limits/" + std::to_string(i);
+        nh.getParam(param_name + "/min_position", joint_limits_[i].min_position);
+        nh.getParam(param_name + "/max_position", joint_limits_[i].max_position);
+        nh.getParam(param_name + "/max_velocity", joint_limits_[i].max_velocity);
+        nh.getParam(param_name + "/max_effort", joint_limits_[i].max_effort);
+    }
 
     std::vector<std::string> joint_names{
         "left_hip_pitch_joint",  "left_hip_roll_joint",   "left_hip_yaw_joint",  "left_knee_joint",  "left_ankle_pitch_joint",  "left_ankle_roll_joint",
@@ -157,11 +157,11 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
 void BotHW::write(ros::Time time, ros::Duration period) {
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
-        double desired_pos = 0.0;
-        // double desired_pos = jointCommand_[i].pos_des_;
+        // double desired_pos = 0.0;
+        double desired_pos = jointCommand_[i].pos_des_;
 
-        // desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
-        // desired_pos = std::min(joint_limits_[i].max_position, desired_pos);
+        desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
+        desired_pos = std::min(joint_limits_[i].max_position, desired_pos);
 
         mvrSendcmd_[i].pos_des_ = desired_pos;
         mvrSendcmd_[i].vel_des_ = 0.0; 

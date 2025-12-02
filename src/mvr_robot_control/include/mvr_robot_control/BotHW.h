@@ -47,7 +47,7 @@ public:
 
     ros::Publisher observe_pub_;
 
-    // std::vector<joint_limits_interface::JointLimits> joint_limits_;
+    std::vector<joint_limits_interface::JointLimits> joint_limits_;
 
     bool init(ros::NodeHandle& nh);
 
