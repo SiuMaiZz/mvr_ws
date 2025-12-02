@@ -1,3 +1,8 @@
+*.o
+*.a
+*.out
+*.exe
+*.class
 .vscode/
 build/
 devel/
