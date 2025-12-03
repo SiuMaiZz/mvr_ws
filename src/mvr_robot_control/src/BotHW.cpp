@@ -22,18 +22,16 @@ bool BotHW::init(ros::NodeHandle& nh) {
 
     int ec_slavecount = EtherCAT_Init(const_cast<char*>("enp4s0"));
     std::cout << "开始EtherCAT初始化" << std::endl;
-    if (ec_slavecount <= 0)
-    {
+    if (ec_slavecount <= 0) {
         std::cout << "未找到从站，程序退出" << std::endl;
         return false;
     }
 
-    for (int i = 0; i < TOTAL_MOTORS; ++i)
-    {
+    for (int i = 0; i < TOTAL_MOTORS; ++i) {
         mvrSendDefaultcmd_[i].pos_des_ = 0.0;
         mvrSendDefaultcmd_[i].vel_des_ = 0.0;
-        mvrSendDefaultcmd_[i].kp_      = 0.0;
-        mvrSendDefaultcmd_[i].kd_      = 0.0;
+        mvrSendDefaultcmd_[i].kp_      = 10.0;
+        mvrSendDefaultcmd_[i].kd_      = 5.0;
         mvrSendDefaultcmd_[i].ff_      = 0.0;
     }
 
@@ -44,13 +42,14 @@ bool BotHW::init(ros::NodeHandle& nh) {
     
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
         std::string param_name = "joint_limits/" + std::to_string(i);
+        ROS_INFO_STREAM("Loading parameters for " << param_name);
         nh.getParam(param_name + "/min_position", joint_limits_[i].min_position);
         nh.getParam(param_name + "/max_position", joint_limits_[i].max_position);
         nh.getParam(param_name + "/max_velocity", joint_limits_[i].max_velocity);
         nh.getParam(param_name + "/max_effort", joint_limits_[i].max_effort);
     }
 
-    std::vector<std::string> joint_names{
+    std::vector<std::string> joint_names {
         "left_hip_pitch_joint",  "left_hip_roll_joint",   "left_hip_yaw_joint",  "left_knee_joint",  "left_ankle_pitch_joint",  "left_ankle_roll_joint",
         "right_hip_pitch_joint", "right_hip_roll_joint",  "right_hip_yaw_joint", "right_knee_joint", "right_ankle_pitch_joint", "right_ankle_roll_joint",
         "waist_joint", "left_arm_pitch_higher_joint",  "left_arm_roll_joint",  "left_arm_yaw_joint",  "left_arm_pitch_lower_joint",
@@ -60,15 +59,13 @@ bool BotHW::init(ros::NodeHandle& nh) {
     std::vector<int> motor_ids(joint_names.size());
     std::iota(motor_ids.begin(), motor_ids.end(), 0);
 
-    if (joint_names.size() > TOTAL_MOTORS)
-    {
+    if (joint_names.size() > TOTAL_MOTORS) {
         ROS_ERROR_STREAM("joint_names 数量 (" << joint_names.size()
                          << ") 大于 TOTAL_MOTORS (" << TOTAL_MOTORS << ")");
         return false;
     }
 
-    for (std::size_t i = 0; i < joint_names.size(); ++i)
-    {
+    for (std::size_t i = 0; i < joint_names.size(); ++i) {
         const std::string& joint_name = joint_names[i];
         int motor_id = motor_ids[i]; 
 
@@ -157,8 +154,8 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
 void BotHW::write(ros::Time time, ros::Duration period) {
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
-        // double desired_pos = 0.0;
-        double desired_pos = jointCommand_[i].pos_des_;
+        double desired_pos = 0.0;
+        // double desired_pos = jointCommand_[i].pos_des_;
 
         desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
         desired_pos = std::min(joint_limits_[i].max_position, desired_pos);
@@ -168,8 +165,8 @@ void BotHW::write(ros::Time time, ros::Duration period) {
         // mvrSendcmd_[i].vel_des_ = jointCommand_[i].vel_des_; 
         // mvrSendcmd_[i].kp_      = jointCommand_[i].kp_;
         // mvrSendcmd_[i].kd_      = jointCommand_[i].kd_;
-        mvrSendcmd_[i].kp_      = 0.0;
-        mvrSendcmd_[i].kd_      = 0.0;
+        mvrSendcmd_[i].kp_      = 10.0;
+        mvrSendcmd_[i].kd_      = 5.0;
         mvrSendcmd_[i].ff_      = 0.0;
     }
 
