@@ -12,6 +12,12 @@
       <legacyModeNS>true</legacyModeNS>
     </plugin>
   </gazebo>
+  <gazebo>
+    <joint name="world_to_base" type="fixed">
+        <parent>world</parent>
+        <child>base_link</child>
+    </joint>
+  </gazebo>  
 
   <link
     name="base_link">

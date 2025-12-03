@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jf/projects/mvr_ws/src/mvr_robot_control/app/thirdparty/cpp-readline/src/Console.cpp
+Console.hpp
+/home/jf/projects/mvr_ws/src/mvr_robot_control/app/thirdparty/cpp-readline/src/Console.hpp
+iostream
+-
+fstream
+-
+functional
+-
+algorithm
+-
+iterator
+-
+sstream
+-
+unordered_map
+-
+cstdlib
+-
+cstring
+-
+readline/readline.h
+-
+readline/history.h
+-
+
+/home/jf/projects/mvr_ws/src/mvr_robot_control/app/thirdparty/cpp-readline/src/Console.hpp
+functional
+-
+string
+-
+vector
+-
+memory
+-
+

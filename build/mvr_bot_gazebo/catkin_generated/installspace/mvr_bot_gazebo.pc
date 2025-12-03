@@ -1,0 +1,8 @@
+prefix=/home/jf/projects/mvr_ws/install
+
+Name: mvr_bot_gazebo
+Description: Description of mvr_bot_gazebo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

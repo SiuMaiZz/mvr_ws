@@ -1,0 +1,8 @@
+prefix=/home/jf/projects/mvr_ws/devel
+
+Name: serial
+Description: Description of serial
+Version: 1.2.1
+Cflags: -I/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/rosserial/include
+Libs: -L${prefix}/lib -lserial -lrt -lpthread
+Requires: 
