@@ -3,21 +3,29 @@ project(mvr_robot_control)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# 1. 保留原本的第三方库路径
 add_subdirectory(app/thirdparty)
 
+# 2. 查找所有依赖 (合并了原来的 C++ 依赖和新的仿真依赖)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs          # 新增：用于 Bridge 读取 IMU
   message_generation
   controller_manager
   joint_limits_interface
+  gazebo_ros           # 新增
+  gazebo_ros_control   # 新增
+  joint_state_controller # 新增
+  robot_state_publisher  # 新增
+  urdf                 # 新增
 )
 
 find_package(Eigen3 REQUIRED NO_MODULE)
-
 find_package(Boost REQUIRED)
 
+# 3. 编译自定义消息 (保持不变)
 add_message_files(
   FILES
   MotorData.msg
@@ -30,6 +38,7 @@ generate_messages(
   std_msgs
 )
 
+# 4. 配置 Catkin 包信息 (增加 sensor_msgs)
 catkin_package(
  INCLUDE_DIRS 
  include
@@ -37,8 +46,10 @@ catkin_package(
  CATKIN_DEPENDS
  roscpp
  message_runtime
+ sensor_msgs
 )
 
+# 5. 包含头文件路径 (保持不变)
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -53,6 +64,7 @@ include_directories(
   app/thirdparty/cpp-readline/src
 )
 
+# 6. 定义源文件 (保持不变)
 set(SOURCES 
   app/motor_control.c
   app/motor_control.h
@@ -65,21 +77,24 @@ set(SOURCES
   app/command.cpp
   app/command.h)
 
+# 7. 编译 motor 库 (保持不变)
 add_library(motor ${SOURCES})
 target_link_libraries(motor soem)
 
+# 8. 编译 mvr_robot_control 可执行文件 (保持不变)
 add_executable(mvr_robot_control  
   src/BotHW.cpp
   src/BotControlLoop.cpp
 )
+# 注意：这里添加了 ${catkin_LIBRARIES} 以确保链接到 ROS 库
 target_link_libraries(mvr_robot_control
   soem motor ${catkin_LIBRARIES}
 )
 
-
+# 9. 安装规则 (保持不变)
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
+  FILES_MATCHING 
+  PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
-

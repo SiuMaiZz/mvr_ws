@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import torch
-import torch.nn as nn
+import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
 from mvr_robot_control.msg import ObserveData, ActionData
@@ -31,7 +31,7 @@ class ROSNode:
             torch.backends.cudnn.benchmark = True     
         
         try:
-            model_path = rospy.get_param('~model_path', '/home/robot007/mvr_ws/src/mvr_robot_control/model/policy_1_right_arm_pitch_high.pt')
+            model_path = rospy.get_param('~model_path', '/home/jf/projects/mvr_ws/src/mvr_robot_control/model/policy_1_right_arm_pitch_high.pt')
             print(model_path)
             self.model = torch.jit.load(model_path)
             rospy.loginfo(f"Loading model from: {model_path}")

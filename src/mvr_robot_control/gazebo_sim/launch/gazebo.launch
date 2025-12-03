@@ -1,0 +1,21 @@
+<launch>
+    <!-- 1. 加载仿真环境，不需要 launch-prefix，这里只是包含另一个 launch -->
+    <include file="$(find mvr_robot_control)/gazebo_sim/launch/env.launch" />
+
+    <!-- 2. 仿真桥接节点：新终端 + 日志写到 mvr_robot_control/gazebo_sim/logs -->
+    <node pkg="mvr_robot_control"
+          type="sim_bridge.py"
+          name="sim_hardware_bridge"
+          output="screen"
+          launch-prefix="gnome-terminal --">
+    </node>
+
+    <!-- 3. 强化学习节点：新终端 + 日志写到 mvr_robot_control/gazebo_sim/logs -->
+    <node pkg="mvr_robot_control"
+          type="RL_Command.py"
+          name="rl_policy_runner"
+          output="screen"
+          launch-prefix="gnome-terminal --">
+    </node>
+
+</launch>
