@@ -1,2 +1,0 @@
-mvr_robot_control:yesense_ros/yesense_ros/rosserial:yesense_ros/yesense_ros/yesense
--DCATKIN_DEVEL_PREFIX=/home/jf/projects/mvr_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jf/projects/mvr_ws/install -G Unix Makefiles
