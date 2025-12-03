@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import rospy
 import numpy as np
-from mvr_robot_control.msg import ObserveData, ActionData
+from mvr_bot_gazebo.msg import ObserveData, ActionData
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
 
