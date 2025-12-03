@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import torch
 import torch.nn as nn # type: ignore
 import rospy
@@ -26,13 +27,17 @@ class ROSNode:
 
         self.last_action = np.zeros(1, dtype=np.float32)
 
+        script_path = os.path.dirname(os.path.realpath(__file__))
+
+        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high.pt')
+
+        model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
+
         torch.set_num_threads(4)
         if torch.cuda.is_available():
             torch.backends.cudnn.benchmark = True     
         
         try:
-            model_path = rospy.get_param('~model_path', '/home/jf/projects/mvr_ws/src/mvr_robot_control/model/policy_1_right_arm_pitch_high.pt')
-            print(model_path)
             self.model = torch.jit.load(model_path)
             rospy.loginfo(f"Loading model from: {model_path}")
             rospy.loginfo("Model loaded successfully")
