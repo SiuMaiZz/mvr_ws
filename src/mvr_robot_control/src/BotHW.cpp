@@ -27,13 +27,36 @@ bool BotHW::init(ros::NodeHandle& nh) {
         return false;
     }
 
+    default_joint_positions_.resize(TOTAL_MOTORS);
+
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
-        mvrSendDefaultcmd_[i].pos_des_ = 0.0;
-        mvrSendDefaultcmd_[i].vel_des_ = 0.0;
-        mvrSendDefaultcmd_[i].kp_      = 10.0;
-        mvrSendDefaultcmd_[i].kd_      = 5.0;
-        mvrSendDefaultcmd_[i].ff_      = 0.0;
+        std::string param_name = "/default_positions/" + std::to_string(i);
+        ros::param::get(param_name, default_joint_positions_[i]);
     }
+
+
+    // default_joint_positions_ = {
+    //     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    //     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    //     0.0, 0.0, 0.0, 0.0, -0.4,
+    //     0.0, 0.0, 0.0, 0.0, 0.4
+    // };
+
+    for (int i = 0; i < TOTAL_MOTORS; ++i) {
+        jointCommand_[i].pos_des_ = default_joint_positions_[i];
+        jointCommand_[i].vel_ = 0.0;  
+        jointCommand_[i].kp_ = 10.0; 
+        jointCommand_[i].kd_ = 5.0;  
+        jointCommand_[i].ff_ = 0.0;   
+
+        mvrSendDefaultcmd_[i].pos_des_ = default_joint_positions_[i];
+        mvrSendDefaultcmd_[i].vel_des_ = 0.0;
+        mvrSendDefaultcmd_[i].kp_ = 10.0;
+        mvrSendDefaultcmd_[i].kd_ = 5.0;
+        mvrSendDefaultcmd_[i].ff_ = 0.0;
+    }
+
+    ROS_INFO("Default joint positions initialized statically");
 
     EtherCAT_Send_Command_New((YKSMotorData*)mvrSendDefaultcmd_);
     EtherCAT_Get_State_New();
@@ -41,12 +64,15 @@ bool BotHW::init(ros::NodeHandle& nh) {
     joint_limits_.resize(TOTAL_MOTORS);
     
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
-        std::string param_name = "joint_limits/" + std::to_string(i);
-        ROS_INFO_STREAM("Loading parameters for " << param_name);
-        nh.getParam(param_name + "/min_position", joint_limits_[i].min_position);
-        nh.getParam(param_name + "/max_position", joint_limits_[i].max_position);
-        nh.getParam(param_name + "/max_velocity", joint_limits_[i].max_velocity);
-        nh.getParam(param_name + "/max_effort", joint_limits_[i].max_effort);
+    joint_limits_interface::JointLimits limits;
+
+    std::string param_name = "/joint_limits/" + std::to_string(i);
+    ros::param::get(param_name + "/min_position", limits.min_position);
+    ros::param::get(param_name + "/max_position", limits.max_position);
+    ros::param::get(param_name + "/max_velocity", limits.max_velocity);
+    ros::param::get(param_name + "/max_effort", limits.max_effort);
+
+    joint_limits_[i] = limits;
     }
 
     std::vector<std::string> joint_names {
@@ -93,7 +119,7 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
     EtherCAT_Get_State_New();
 
-    int id = 18;
+    int id = 16;
     jointCommand_[id].pos_ = motorDate_recv[id].pos_;
     jointCommand_[id].vel_ = motorDate_recv[id].vel_;
     jointCommand_[id].tau_ = motorDate_recv[id].tau_;
@@ -154,8 +180,8 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
 void BotHW::write(ros::Time time, ros::Duration period) {
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
-        double desired_pos = 0.0;
-        // double desired_pos = jointCommand_[i].pos_des_;
+        // double desired_pos = 0.0;
+        double desired_pos = jointCommand_[i].pos_des_;
 
         desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
         desired_pos = std::min(joint_limits_[i].max_position, desired_pos);

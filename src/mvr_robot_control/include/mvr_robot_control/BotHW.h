@@ -23,6 +23,7 @@
 #include <mvr_robot_control/ActionData.h>
 #include <mutex>
 #include <vector>
+#include <XmlRpcValue.h>
 
 struct MotorData
 {
@@ -58,6 +59,8 @@ public:
 private:
     hardware_interface::JointStateInterface joint_state_interface_;
     hardware_interface::PositionJointInterface joint_position_interface_;
+
+    std::vector<double> default_joint_positions_;
     
     MotorData jointCommand_[TOTAL_MOTORS]{};
 
