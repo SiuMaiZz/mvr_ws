@@ -1,0 +1,10 @@
+mvr_bot:
+  # 发布 joint_states
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+
+  # 控制一个关节：right_arm_pitch_lower_joint
+  right_arm_pitch_lower_position_controller:
+    type: position_controllers/JointPositionController
+    joint: right_arm_pitch_lower_joint
