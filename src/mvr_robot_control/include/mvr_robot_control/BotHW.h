@@ -23,6 +23,7 @@
 #include <mvr_robot_control/ActionData.h>
 #include <mutex>
 #include <vector>
+#include <XmlRpcValue.h>
 
 struct MotorData
 {
@@ -47,7 +48,7 @@ public:
 
     ros::Publisher observe_pub_;
 
-    // std::vector<joint_limits_interface::JointLimits> joint_limits_;
+    std::vector<joint_limits_interface::JointLimits> joint_limits_;
 
     bool init(ros::NodeHandle& nh);
 
@@ -58,6 +59,8 @@ public:
 private:
     hardware_interface::JointStateInterface joint_state_interface_;
     hardware_interface::PositionJointInterface joint_position_interface_;
+
+    std::vector<double> default_joint_positions_;
     
     MotorData jointCommand_[TOTAL_MOTORS]{};
 
