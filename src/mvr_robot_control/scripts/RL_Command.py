@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import torch
-import torch.nn as nn
+import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
 from mvr_robot_control.msg import ObserveData, ActionData
