@@ -1,38 +1,43 @@
 <launch>
-  <!-- 一些常用参数 -->
-  <arg name="paused" default="false"/>
-  <arg name="use_sim_time" default="true"/>
-  <arg name="gui" default="true"/>
-  <arg name="headless" default="false"/>
-
-  <!-- 启动空世界 Gazebo -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  <arg name="paused" default="true"/> <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="paused" value="$(arg paused)"/>
-    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-    <arg name="gui" value="$(arg gui)"/>
-    <arg name="headless" value="$(arg headless)"/>
+    <arg name="use_sim_time" value="true"/>
   </include>
 
-  <!-- 把 URDF 加载到参数服务器 -->
-  <param name="robot_description"
-         textfile="$(find mvr_bot_gazebo)/urdf/v3all_gazebo.urdf" />
+  <param name="robot_description" textfile="$(find mvr_robot_control)/urdf/v3all_nocol_gazebo.urdf" />
 
-  <!-- 把机器人模型 spawn 到 Gazebo 里 -->
-  <node name="spawn_mvr_bot" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -model mvr_bot -param robot_description"
-        respawn="false" output="screen" />
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model mvr_bot -param robot_description -z 1.0 -J left_knee_joint 0.5 -J right_knee_joint 0.5"/>
+        <rosparam file="$(find mvr_robot_control)/config/controllers.yaml" command="load"/>
 
-  <!-- TF：发布各个 link 的坐标变换 -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="100.0" />
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/mvr_bot" args="
+      joint_state_controller
+      left_hip_pitch_controller
+      left_hip_roll_controller
+      left_hip_yaw_controller
+      left_knee_controller
+      left_ankle_pitch_controller
+      left_ankle_roll_controller
+      right_hip_pitch_controller
+      right_hip_roll_controller
+      right_hip_yaw_controller
+      right_knee_controller
+      right_ankle_pitch_controller
+      right_ankle_roll_controller
+      waist_controller
+      head_controller
+      left_arm_pitch_higher_controller
+      left_arm_roll_controller
+      left_arm_yaw_controller
+      left_arm_pitch_lower_controller
+      right_arm_pitch_higher_controller
+      right_arm_roll_controller
+      right_arm_yaw_controller
+      right_arm_pitch_lower_controller"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/mvr_bot/joint_states" />
   </node>
-
-  <!-- 加载 ros_control 控制器配置 -->
-  <rosparam file="$(find mvr_bot_gazebo)/config/mvr_bot_control.yaml" command="load"/>
-
-  <!-- 启动 joint_state_controller 和 单关节控制器 -->
-  <node name="controller_spawner"
-        pkg="controller_manager" type="spawner"
-        args="joint_state_controller right_arm_pitch_lower_position_controller"
-        respawn="false" output="screen"/>
 </launch>
