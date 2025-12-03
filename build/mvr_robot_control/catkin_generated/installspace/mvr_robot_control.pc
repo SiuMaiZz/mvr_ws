@@ -5,4 +5,4 @@ Description: Description of mvr_robot_control
 Version: 0.0.0
 Cflags: -I${prefix}/include
 Libs: -L${prefix}/lib 
-Requires: roscpp message_runtime
+Requires: roscpp message_runtime sensor_msgs

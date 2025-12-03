@@ -49,7 +49,7 @@ add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg" NAME_WE)
 add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg" "yesense_imu/YesenseImuUtcTime:yesense_imu/YesenseImuLocation"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg" "yesense_imu/YesenseImuLocation:yesense_imu/YesenseImuUtcTime"
 )
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg" NAME_WE)
@@ -59,7 +59,7 @@ add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg" NAME_WE)
 add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg" "yesense_imu/YesenseImuUtcTime:yesense_imu/YesenseImuMasterGnssData:yesense_imu/YesenseImuSlaveGnssData:yesense_imu/YesenseImuLocation"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg" "yesense_imu/YesenseImuLocation:yesense_imu/YesenseImuMasterGnssData:yesense_imu/YesenseImuSlaveGnssData:yesense_imu/YesenseImuUtcTime"
 )
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg" NAME_WE)
@@ -69,12 +69,12 @@ add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg" NAME_WE)
 add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg" "yesense_imu/YesenseImuEulerAngle:geometry_msgs/Vector3:geometry_msgs/Accel:yesense_imu/YesenseImuQuaternion:yesense_imu/YesenseImuLocation"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg" "yesense_imu/YesenseImuLocation:yesense_imu/YesenseImuEulerAngle:yesense_imu/YesenseImuQuaternion:geometry_msgs/Accel:geometry_msgs/Vector3"
 )
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg" NAME_WE)
 add_custom_target(_yesense_imu_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg" "yesense_imu/YesenseImuStatus:yesense_imu/YesenseImuUtcTime:yesense_imu/YesenseImuGnssData:yesense_imu/YesenseImuMasterGnssData:yesense_imu/YesenseImuEulerAngle:yesense_imu/YesenseImuSlaveGnssData:geometry_msgs/Vector3:yesense_imu/YesenseImuGpsData:geometry_msgs/Accel:yesense_imu/YesenseImuQuaternion:yesense_imu/YesenseImuLocation"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "yesense_imu" "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg" "yesense_imu/YesenseImuLocation:yesense_imu/YesenseImuEulerAngle:yesense_imu/YesenseImuMasterGnssData:yesense_imu/YesenseImuUtcTime:yesense_imu/YesenseImuSlaveGnssData:yesense_imu/YesenseImuStatus:yesense_imu/YesenseImuGnssData:yesense_imu/YesenseImuQuaternion:yesense_imu/YesenseImuGpsData:geometry_msgs/Accel:geometry_msgs/Vector3"
 )
 
 get_filename_component(_filename "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuCmdResp.msg" NAME_WE)
@@ -127,7 +127,7 @@ _generate_msg_cpp(yesense_imu
 _generate_msg_cpp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_cpp(yesense_imu
@@ -139,7 +139,7 @@ _generate_msg_cpp(yesense_imu
 _generate_msg_cpp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_cpp(yesense_imu
@@ -151,13 +151,13 @@ _generate_msg_cpp(yesense_imu
 _generate_msg_cpp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_cpp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_cpp(yesense_imu
@@ -256,7 +256,7 @@ _generate_msg_eus(yesense_imu
 _generate_msg_eus(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_eus(yesense_imu
@@ -268,7 +268,7 @@ _generate_msg_eus(yesense_imu
 _generate_msg_eus(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_eus(yesense_imu
@@ -280,13 +280,13 @@ _generate_msg_eus(yesense_imu
 _generate_msg_eus(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_eus(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_eus(yesense_imu
@@ -385,7 +385,7 @@ _generate_msg_lisp(yesense_imu
 _generate_msg_lisp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_lisp(yesense_imu
@@ -397,7 +397,7 @@ _generate_msg_lisp(yesense_imu
 _generate_msg_lisp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_lisp(yesense_imu
@@ -409,13 +409,13 @@ _generate_msg_lisp(yesense_imu
 _generate_msg_lisp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_lisp(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_lisp(yesense_imu
@@ -514,7 +514,7 @@ _generate_msg_nodejs(yesense_imu
 _generate_msg_nodejs(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_nodejs(yesense_imu
@@ -526,7 +526,7 @@ _generate_msg_nodejs(yesense_imu
 _generate_msg_nodejs(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_nodejs(yesense_imu
@@ -538,13 +538,13 @@ _generate_msg_nodejs(yesense_imu
 _generate_msg_nodejs(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_nodejs(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_nodejs(yesense_imu
@@ -643,7 +643,7 @@ _generate_msg_py(yesense_imu
 _generate_msg_py(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_py(yesense_imu
@@ -655,7 +655,7 @@ _generate_msg_py(yesense_imu
 _generate_msg_py(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_py(yesense_imu
@@ -667,13 +667,13 @@ _generate_msg_py(yesense_imu
 _generate_msg_py(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_py(yesense_imu
   "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg"
   "${MSG_I_FLAGS}"
-  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg"
+  "/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg;/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Accel.msg;/opt/ros/noetic/share/geometry_msgs/cmake/../msg/Vector3.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/yesense_imu
 )
 _generate_msg_py(yesense_imu

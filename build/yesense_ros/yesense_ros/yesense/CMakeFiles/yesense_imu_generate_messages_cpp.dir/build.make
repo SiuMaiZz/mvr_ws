@@ -106,8 +106,8 @@ yesense_ros/yesense_ros/yesense/CMakeFiles/yesense_imu_generate_messages_cpp: /h
 
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuMasterGnssData.h: /opt/ros/noetic/share/gencpp/msg.h.template
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/jf/projects/mvr_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Generating C++ code from yesense_imu/YesenseImuMasterGnssData.msg"
 	cd /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense && /home/jf/projects/mvr_ws/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg -Iyesense_imu:/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p yesense_imu -o /home/jf/projects/mvr_ws/devel/include/yesense_imu -e /opt/ros/noetic/share/gencpp/cmake/..
@@ -120,10 +120,10 @@ yesense_ros/yesense_ros/yesense/CMakeFiles/yesense_imu_generate_messages_cpp: /h
 
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuGnssData.h: /opt/ros/noetic/share/gencpp/msg.h.template
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/jf/projects/mvr_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Generating C++ code from yesense_imu/YesenseImuGnssData.msg"
 	cd /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense && /home/jf/projects/mvr_ws/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg -Iyesense_imu:/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p yesense_imu -o /home/jf/projects/mvr_ws/devel/include/yesense_imu -e /opt/ros/noetic/share/gencpp/cmake/..
@@ -136,28 +136,28 @@ yesense_ros/yesense_ros/yesense/CMakeFiles/yesense_imu_generate_messages_cpp: /h
 
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/share/geometry_msgs/msg/Vector3.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/share/geometry_msgs/msg/Accel.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/share/geometry_msgs/msg/Accel.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/share/geometry_msgs/msg/Vector3.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuSensorData.h: /opt/ros/noetic/share/gencpp/msg.h.template
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/jf/projects/mvr_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Generating C++ code from yesense_imu/YesenseImuSensorData.msg"
 	cd /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense && /home/jf/projects/mvr_ws/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSensorData.msg -Iyesense_imu:/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p yesense_imu -o /home/jf/projects/mvr_ws/devel/include/yesense_imu -e /opt/ros/noetic/share/gencpp/cmake/..
 
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuEulerAngle.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuMasterGnssData.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuUtcTime.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuSlaveGnssData.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /opt/ros/noetic/share/geometry_msgs/msg/Vector3.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuStatus.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGnssData.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuGpsData.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /opt/ros/noetic/share/geometry_msgs/msg/Accel.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuQuaternion.msg
-/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuLocation.msg
+/home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /opt/ros/noetic/share/geometry_msgs/msg/Vector3.msg
 /home/jf/projects/mvr_ws/devel/include/yesense_imu/YesenseImuAllData.h: /opt/ros/noetic/share/gencpp/msg.h.template
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/jf/projects/mvr_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Generating C++ code from yesense_imu/YesenseImuAllData.msg"
 	cd /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense && /home/jf/projects/mvr_ws/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg/YesenseImuAllData.msg -Iyesense_imu:/home/jf/projects/mvr_ws/src/yesense_ros/yesense_ros/yesense/msg -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p yesense_imu -o /home/jf/projects/mvr_ws/devel/include/yesense_imu -e /opt/ros/noetic/share/gencpp/cmake/..

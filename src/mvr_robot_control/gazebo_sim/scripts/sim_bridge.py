@@ -4,7 +4,6 @@ import rospy
 import numpy as np
 from sensor_msgs.msg import JointState, Imu
 from std_msgs.msg import Float64
-# 注意：包名已根据你的项目名为 mvr_bot_gazebo
 from mvr_robot_control.msg import ObserveData, ActionData 
 
 class SimHardwareBridge:

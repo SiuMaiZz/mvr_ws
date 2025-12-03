@@ -148,7 +148,6 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/jf/projects/mvr_ws/build/gtest/cmake_install.cmake")
   include("/home/jf/projects/mvr_ws/build/yesense_ros/yesense_ros/rosserial/cmake_install.cmake")
   include("/home/jf/projects/mvr_ws/build/mvr_robot_control/cmake_install.cmake")
-  include("/home/jf/projects/mvr_ws/build/mvr_bot_gazebo/cmake_install.cmake")
   include("/home/jf/projects/mvr_ws/build/yesense_ros/yesense_ros/yesense/cmake_install.cmake")
 
 endif()

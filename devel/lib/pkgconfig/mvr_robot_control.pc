@@ -5,4 +5,4 @@ Description: Description of mvr_robot_control
 Version: 0.0.0
 Cflags: -I/home/jf/projects/mvr_ws/devel/include -I/home/jf/projects/mvr_ws/src/mvr_robot_control/include -I/home/jf/projects/mvr_ws/src/mvr_robot_control/app
 Libs: -L${prefix}/lib 
-Requires: roscpp message_runtime
+Requires: roscpp message_runtime sensor_msgs

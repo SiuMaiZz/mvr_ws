@@ -7,5 +7,4 @@
 subdirs("gtest")
 subdirs("yesense_ros/yesense_ros/rosserial")
 subdirs("mvr_robot_control")
-subdirs("mvr_bot_gazebo")
 subdirs("yesense_ros/yesense_ros/yesense")
