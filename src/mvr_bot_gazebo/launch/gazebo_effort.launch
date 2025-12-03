@@ -1,0 +1,27 @@
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="true"/>
+    <arg name="use_sim_time" value="true"/>
+  </include>
+
+  <param name="robot_description" textfile="$(find mvr_bot_gazebo)/urdf/v3all_nocol_gazebo.urdf" />
+
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model mvr_bot -param robot_description -z 1.0" />
+
+  <rosparam file="$(find mvr_bot_gazebo)/config/controllers.yaml" command="load"/>
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/mvr_bot" args="
+      joint_state_controller
+      left_hip_pitch_controller left_hip_roll_controller left_hip_yaw_controller left_knee_controller left_ankle_pitch_controller left_ankle_roll_controller
+      right_hip_pitch_controller right_hip_roll_controller right_hip_yaw_controller right_knee_controller right_ankle_pitch_controller right_ankle_roll_controller
+      waist_controller head_controller
+      left_arm_pitch_higher_controller left_arm_roll_controller left_arm_yaw_controller left_arm_pitch_lower_controller
+      right_arm_pitch_higher_controller right_arm_roll_controller right_arm_yaw_controller right_arm_pitch_lower_controller"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/mvr_bot/joint_states" />
+  </node>
+</launch>
