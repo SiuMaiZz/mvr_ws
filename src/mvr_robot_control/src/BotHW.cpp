@@ -16,9 +16,9 @@
 bool BotHW::init(ros::NodeHandle& nh) {
     nh.setParam("bot_hardware_interface", "null");
 
-    imu_sub_     = nh.subscribe("/imu/data", 1, &BotHW::odomCallback, this);
-    command_sub_ = nh.subscribe("/control_cmd", 1, &BotHW::commandCallback, this);
-    observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 10);
+    imu_sub_     = nh.subscribe("/imu/data", 50, &BotHW::odomCallback, this);
+    command_sub_ = nh.subscribe("/control_cmd", 50, &BotHW::commandCallback, this);
+    observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 50);
 
     int ec_slavecount = EtherCAT_Init(const_cast<char*>("enp4s0"));
     std::cout << "开始EtherCAT初始化" << std::endl;
@@ -34,25 +34,17 @@ bool BotHW::init(ros::NodeHandle& nh) {
         ros::param::get(param_name, default_joint_positions_[i]);
     }
 
-
-    // default_joint_positions_ = {
-    //     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-    //     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-    //     0.0, 0.0, 0.0, 0.0, -0.4,
-    //     0.0, 0.0, 0.0, 0.0, 0.4
-    // };
-
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
         jointCommand_[i].pos_des_ = default_joint_positions_[i];
-        jointCommand_[i].vel_ = 0.0;  
-        jointCommand_[i].kp_ = 10.0; 
-        jointCommand_[i].kd_ = 5.0;  
-        jointCommand_[i].ff_ = 0.0;   
 
         mvrSendDefaultcmd_[i].pos_des_ = default_joint_positions_[i];
         mvrSendDefaultcmd_[i].vel_des_ = 0.0;
-        mvrSendDefaultcmd_[i].kp_ = 10.0;
-        mvrSendDefaultcmd_[i].kd_ = 5.0;
+        mvrSendDefaultcmd_[i].kp_ = 0.0;
+        mvrSendDefaultcmd_[i].kd_ = 0.0;
+        if (i == 17) {
+            mvrSendDefaultcmd_[i].kp_ = 5.0;
+            mvrSendDefaultcmd_[i].kd_ = 5.0;
+        }
         mvrSendDefaultcmd_[i].ff_ = 0.0;
     }
 
@@ -119,7 +111,7 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
     EtherCAT_Get_State_New();
 
-    int id = 16;
+    int id = 17;
     jointCommand_[id].pos_ = motorDate_recv[id].pos_;
     jointCommand_[id].vel_ = motorDate_recv[id].vel_;
     jointCommand_[id].tau_ = motorDate_recv[id].tau_;
@@ -181,6 +173,7 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 void BotHW::write(ros::Time time, ros::Duration period) {
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
         // double desired_pos = 0.0;
+        int id = 17;
         double desired_pos = jointCommand_[i].pos_des_;
 
         desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
@@ -191,8 +184,12 @@ void BotHW::write(ros::Time time, ros::Duration period) {
         // mvrSendcmd_[i].vel_des_ = jointCommand_[i].vel_des_; 
         // mvrSendcmd_[i].kp_      = jointCommand_[i].kp_;
         // mvrSendcmd_[i].kd_      = jointCommand_[i].kd_;
-        mvrSendcmd_[i].kp_      = 10.0;
-        mvrSendcmd_[i].kd_      = 5.0;
+        mvrSendcmd_[i].kp_      = 0.0;
+        mvrSendcmd_[i].kd_      = 0.0;
+        if(i == id){
+            mvrSendcmd_[i].kp_      = 5.0;
+            mvrSendcmd_[i].kd_      = 5.0;
+        }
         mvrSendcmd_[i].ff_      = 0.0;
     }
 
@@ -206,17 +203,13 @@ void BotHW::odomCallback(const sensor_msgs::Imu::ConstPtr &odom) {
 
 void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) {
     std::lock_guard<std::mutex> lock(cmd_mutex_);
-    int id = 18; 
+    int id = 17; 
 
     ROS_INFO_STREAM("Received ActionData: ");
     ROS_INFO_STREAM("  Joint "<< id << ": " << msg->joint_pos[0]);
 
     if (!msg->joint_pos.empty()) {
         jointCommand_[id].pos_des_ = msg->joint_pos[0];
-        jointCommand_[id].kp_ = 0.0;
-        jointCommand_[id].kd_ = 0.0;
-        jointCommand_[id].vel_des_ = 0.0;
-        jointCommand_[id].ff_ = 0.0;
     }
 }
 
