@@ -12,13 +12,17 @@
 #include <numeric>
 #include <mvr_robot_control/ObserveData.h>
 #include <mvr_robot_control/ActionData.h>
+#include <mvr_robot_control/TestData.h>
+
+int id = 18;
 
 bool BotHW::init(ros::NodeHandle& nh) {
     nh.setParam("bot_hardware_interface", "null");
 
     imu_sub_     = nh.subscribe("/imu/data", 50, &BotHW::odomCallback, this);
     command_sub_ = nh.subscribe("/control_cmd", 50, &BotHW::commandCallback, this);
-    observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 50);
+    // observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 50);
+    observe_pub_ = nh.advertise<mvr_robot_control::TestData>("/observe_data", 50);
 
     int ec_slavecount = EtherCAT_Init(const_cast<char*>("enp4s0"));
     std::cout << "开始EtherCAT初始化" << std::endl;
@@ -41,7 +45,7 @@ bool BotHW::init(ros::NodeHandle& nh) {
         mvrSendDefaultcmd_[i].vel_des_ = 0.0;
         mvrSendDefaultcmd_[i].kp_ = 0.0;
         mvrSendDefaultcmd_[i].kd_ = 0.0;
-        if (i == 17) {
+        if (i == id) {
             mvrSendDefaultcmd_[i].kp_ = 5.0;
             mvrSendDefaultcmd_[i].kd_ = 5.0;
         }
@@ -111,7 +115,6 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
     EtherCAT_Get_State_New();
 
-    int id = 17;
     jointCommand_[id].pos_ = motorDate_recv[id].pos_;
     jointCommand_[id].vel_ = motorDate_recv[id].vel_;
     jointCommand_[id].tau_ = motorDate_recv[id].tau_;
@@ -133,47 +136,57 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     imuData_.linear_acc[1]  = imu_copy.linear_acceleration.y;
     imuData_.linear_acc[2]  = imu_copy.linear_acceleration.z;
 
-    mvr_robot_control::ObserveData observe_msg;
-    observe_msg.header.stamp = ros::Time::now();
+    mvr_robot_control::TestData test_msg;
+    test_msg.header.stamp = ros::Time::now();
 
-    observe_msg.imu_angular_vel[0] = imu_copy.angular_velocity.x;
-    observe_msg.imu_angular_vel[1] = imu_copy.angular_velocity.y;
-    observe_msg.imu_angular_vel[2] = imu_copy.angular_velocity.z;
+    test_msg.joint_pos[0] = jointCommand_[id].pos_;
+    test_msg.joint_vel[0] = jointCommand_[id].vel_;
 
-    observe_msg.joint_pos[0] = jointCommand_[id].pos_;
-    observe_msg.joint_vel[0] = jointCommand_[id].vel_;
+    observe_pub_.publish(test_msg);
 
-    observe_msg.commands[0] = 0.0;
-    observe_msg.commands[1] = 0.0;
-    observe_msg.commands[2] = 0.0;
-
-    observe_msg.quat_float[0] = imu_copy.orientation.x;
-    observe_msg.quat_float[1] = imu_copy.orientation.y;
-    observe_msg.quat_float[2] = imu_copy.orientation.z;
-    observe_msg.quat_float[3] = imu_copy.orientation.w;
-
-    observe_pub_.publish(observe_msg);
-
-    ROS_INFO_STREAM("ObserveData: ");
     ROS_INFO_STREAM("Joint positions: ");
+    ROS_INFO_STREAM(" " << test_msg.joint_pos[0]);
 
-    ROS_INFO_STREAM("  " << observe_msg.joint_pos[0]);
+    // mvr_robot_control::ObserveData observe_msg;
+    // observe_msg.header.stamp = ros::Time::now();
 
-    ROS_INFO_STREAM("IMU angular velocities: ");
-    ROS_INFO_STREAM("  " << observe_msg.imu_angular_vel[0] << ", " 
-                         << observe_msg.imu_angular_vel[1] << ", " 
-                         << observe_msg.imu_angular_vel[2]);
-    ROS_INFO_STREAM("Quaternion: ");
-    ROS_INFO_STREAM("  " << observe_msg.quat_float[0] << ", "
-                         << observe_msg.quat_float[1] << ", "
-                         << observe_msg.quat_float[2] << ", "
-                         << observe_msg.quat_float[3]);
+    // observe_msg.imu_angular_vel[0] = imu_copy.angular_velocity.x;
+    // observe_msg.imu_angular_vel[1] = imu_copy.angular_velocity.y;
+    // observe_msg.imu_angular_vel[2] = imu_copy.angular_velocity.z;
+
+    // observe_msg.joint_pos[0] = jointCommand_[id].pos_;
+    // observe_msg.joint_vel[0] = jointCommand_[id].vel_;
+
+    // observe_msg.commands[0] = 0.0;
+    // observe_msg.commands[1] = 0.0;
+    // observe_msg.commands[2] = 0.0;
+
+    // observe_msg.quat_float[0] = imu_copy.orientation.x;
+    // observe_msg.quat_float[1] = imu_copy.orientation.y;
+    // observe_msg.quat_float[2] = imu_copy.orientation.z;
+    // observe_msg.quat_float[3] = imu_copy.orientation.w;
+
+    // observe_pub_.publish(observe_msg);
+
+    // ROS_INFO_STREAM("ObserveData: ");
+    // ROS_INFO_STREAM("Joint positions: ");
+
+    // ROS_INFO_STREAM("  " << observe_msg.joint_pos[0]);
+
+    // ROS_INFO_STREAM("IMU angular velocities: ");
+    // ROS_INFO_STREAM("  " << observe_msg.imu_angular_vel[0] << ", " 
+    //                      << observe_msg.imu_angular_vel[1] << ", " 
+    //                      << observe_msg.imu_angular_vel[2]);
+    // ROS_INFO_STREAM("Quaternion: ");
+    // ROS_INFO_STREAM("  " << observe_msg.quat_float[0] << ", "
+    //                      << observe_msg.quat_float[1] << ", "
+    //                      << observe_msg.quat_float[2] << ", "
+    //                      << observe_msg.quat_float[3]);
 }
 
 void BotHW::write(ros::Time time, ros::Duration period) {
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
         // double desired_pos = 0.0;
-        int id = 17;
         double desired_pos = jointCommand_[i].pos_des_;
 
         desired_pos = std::max(joint_limits_[i].min_position, desired_pos);
@@ -188,7 +201,7 @@ void BotHW::write(ros::Time time, ros::Duration period) {
         mvrSendcmd_[i].kd_      = 0.0;
         if(i == id){
             mvrSendcmd_[i].kp_      = 5.0;
-            mvrSendcmd_[i].kd_      = 5.0;
+            mvrSendcmd_[i].kd_      = 1.0;
         }
         mvrSendcmd_[i].ff_      = 0.0;
     }
@@ -203,13 +216,13 @@ void BotHW::odomCallback(const sensor_msgs::Imu::ConstPtr &odom) {
 
 void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) {
     std::lock_guard<std::mutex> lock(cmd_mutex_);
-    int id = 17; 
 
     ROS_INFO_STREAM("Received ActionData: ");
     ROS_INFO_STREAM("  Joint "<< id << ": " << msg->joint_pos[0]);
 
     if (!msg->joint_pos.empty()) {
-        jointCommand_[id].pos_des_ = msg->joint_pos[0];
+        // jointCommand_[id].pos_des_ = msg->joint_pos[0];
+        jointCommand_[id].pos_des_ = 0 - msg->joint_pos[0];
     }
 }
 

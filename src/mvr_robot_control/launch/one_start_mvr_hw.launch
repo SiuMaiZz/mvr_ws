@@ -3,7 +3,7 @@
   <rosparam file="$(find mvr_robot_control)/config/joint_limits.yaml" command="load" />
 
   <node name="bot_hw_node" pkg="mvr_robot_control" type="mvr_robot_control" output="screen">
-    <param name="loop_frequency" value="50.0" />
+    <param name="loop_frequency" value="100.0" />
     <param name="cycle_time_error_threshold" value="0.001" />
   </node>
 

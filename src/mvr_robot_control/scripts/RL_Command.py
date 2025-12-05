@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
-from mvr_robot_control.msg import ObserveData, ActionData
+from mvr_robot_control.msg import ObserveData, ActionData, TestData
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
 
@@ -22,14 +22,14 @@ class ROSNode:
 #             self.base_ang_vel * self.obs_scales.ang_vel,  # 3
 #             self.base_euler_xyz * self.obs_scales.quat,  # 3
 #         ), dim=-1)   
-        self.history_buffer = np.zeros((15, 14), dtype=np.float32)
+        self.history_buffer = np.zeros((15, 5), dtype=np.float32)
         self.buffer_ptr = 0
 
         self.last_action = np.zeros(1, dtype=np.float32)
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_head.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high_new.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -49,7 +49,7 @@ class ROSNode:
         self.model.to(self.device)
         rospy.loginfo(f"Using device: {self.device}")
         
-        self.sub = rospy.Subscriber('/observe_data', ObserveData, self.callback)
+        self.sub = rospy.Subscriber('/observe_data', TestData, self.callback)
         self.pub = rospy.Publisher('/control_cmd', ActionData, queue_size=1)
 
         self.count = 0
@@ -94,11 +94,12 @@ class ROSNode:
         joint_pos = np.array(msg.joint_pos, dtype=np.float32) * self.obs_scales['dof_pos']
         joint_vel = np.array(msg.joint_vel, dtype=np.float32) * self.obs_scales['dof_vel']
         # euler_angles = np.array(msg.quat_float, dtype=np.float32) * self.obs_scales['quat']
-        quat = np.array(msg.quat_float, dtype=np.float32)
-        r = R.from_quat(quat)
-        euler_angles = r.as_euler('xyz') * self.obs_scales['quat']
-        commands = np.array(msg.commands, dtype=np.float32)
-        ang_vel = np.array(msg.imu_angular_vel) * self.obs_scales['ang_vel']
+        
+        # quat = np.array(msg.quat_float, dtype=np.float32)
+        # r = R.from_quat(quat)
+        # euler_angles = r.as_euler('xyz') * self.obs_scales['quat']
+        # commands = np.array(msg.commands, dtype=np.float32)
+        # ang_vel = np.array(msg.imu_angular_vel) * self.obs_scales['ang_vel']
 
         phase = self._get_phase()
         sin_pos = np.sin(2 * np.pi * phase)
@@ -106,12 +107,12 @@ class ROSNode:
 
         obs = np.concatenate([
             np.array([sin_pos, cos_pos], dtype=np.float32),
-            np.array(commands, dtype=np.float32),
+            # np.array(commands, dtype=np.float32),
             np.array(joint_pos - self.default_pos, dtype=np.float32),
             np.array(joint_vel, dtype=np.float32),
             np.array(self.last_action, dtype=np.float32),
-            np.array(ang_vel, dtype=np.float32),
-            np.array(euler_angles, dtype=np.float32)
+            # np.array(ang_vel, dtype=np.float32),
+            # np.array(euler_angles, dtype=np.float32)
         ])
 
         self.history_buffer[self.buffer_ptr] = obs
@@ -120,9 +121,9 @@ class ROSNode:
         obs_buf = self.history_buffer.reshape(1,-1)
 
         rospy.loginfo(f"Joint Positions (joint_pos): {joint_pos}")
-        rospy.loginfo(f"Quaternion (quat): {quat}")
-        rospy.loginfo(f"Euler Angles (euler_angles): {euler_angles}")
-        rospy.loginfo(f"Angular Velocities (ang_vel): {ang_vel}")
+        # rospy.loginfo(f"Quaternion (quat): {quat}")
+        # rospy.loginfo(f"Euler Angles (euler_angles): {euler_angles}")
+        # rospy.loginfo(f"Angular Velocities (ang_vel): {ang_vel}")
 
         return obs_buf
     
@@ -133,33 +134,35 @@ class ROSNode:
 # clip_actions = 18.
 
     def callback(self, msg):
-        obs = self.compute_obs(msg)
-        obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
-
-        action_scale = 0.25
-        clip_actions = 18
+        decimation = 10
         
-        with torch.no_grad(): 
-            action = self.model(obs_tensor)
+        if self.count % decimation == 0:
+            obs = self.compute_obs(msg)
+            obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
+            action_scale = 0.25
+            clip_actions = 18
 
-        action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
-        action_scaled = action * action_scale
-        action = action_scaled.cpu().numpy().flatten().astype(np.float32)
+            with torch.no_grad(): 
+                action = self.model(obs_tensor)
+            
+            self.last_action = action.cpu().numpy().flatten()
+            action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
+            action_scaled = action * action_scale
+            action = action_scaled.cpu().numpy().flatten().astype(np.float32)
 
+            action_msg = ActionData()
+            joint_pos = list(action[:1]) 
+            # if len(joint_pos) < 1:
+            #     joint_pos.extend([0] * (1 - len(joint_pos)))
+
+            action_msg.joint_pos = joint_pos
+            self.pub.publish(action_msg)
         
-        
-        action_msg = ActionData()
-        joint_pos = list(action[:1]) 
-        # if len(joint_pos) < 1:
-        #     joint_pos.extend([0] * (1 - len(joint_pos)))
+            rospy.loginfo(f"Action - Joint Positions (joint_pos): {joint_pos}")
 
-        action_msg.joint_pos = joint_pos
-
-        self.pub.publish(action_msg)
-        self.last_action = action.flatten()
         self.count += 1
 
-        rospy.loginfo(f"Action - Joint Positions (joint_pos): {joint_pos}")
+        
 
 
 if __name__ == '__main__':

@@ -23,7 +23,7 @@ public:
     {
         ros::NodeHandle pnh("~");
 
-        pnh.param("loop_frequency", loop_hz_, 50.0);           
+        pnh.param("loop_frequency", loop_hz_, 100.0);           
         pnh.param("cycle_time_error_threshold", cycle_error_thresh_, 0.001); 
 
         last_time_ros_ = ros::Time::now();
@@ -74,7 +74,7 @@ private:
     std::shared_ptr<BotHW> hw_;
     controller_manager::ControllerManager controller_manager_;
 
-    double loop_hz_{50.0};
+    double loop_hz_{100.0};
     double cycle_error_thresh_{0.001};
 
     ros::Time last_time_ros_;

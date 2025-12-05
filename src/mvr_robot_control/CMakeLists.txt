@@ -31,6 +31,7 @@ add_message_files(
   MotorData.msg
   ActionData.msg
   ObserveData.msg
+  TestData.msg
 )
 
 generate_messages(
