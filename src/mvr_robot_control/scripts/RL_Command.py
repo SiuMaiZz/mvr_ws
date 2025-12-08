@@ -29,7 +29,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high_new.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high_v3.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -150,15 +150,17 @@ class ROSNode:
             action_scaled = action * action_scale
             action = action_scaled.cpu().numpy().flatten().astype(np.float32)
 
-            action_msg = ActionData()
+            self.action_msg = ActionData()
             joint_pos = list(action[:1]) 
             # if len(joint_pos) < 1:
             #     joint_pos.extend([0] * (1 - len(joint_pos)))
 
-            action_msg.joint_pos = joint_pos
-            self.pub.publish(action_msg)
+            self.action_msg.joint_pos = joint_pos
+
+        self.pub.publish(self.action_msg)
         
-            rospy.loginfo(f"Action - Joint Positions (joint_pos): {joint_pos}")
+        rospy.loginfo(f"Action  Pos    (joint_pos): {self.action_msg.joint_pos}")
+            
 
         self.count += 1
 

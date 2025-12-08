@@ -15,6 +15,8 @@
 #include <mvr_robot_control/TestData.h>
 
 int id = 18;
+double KP_BASE = 8.0;
+double KD_BASE = 5.0;
 
 bool BotHW::init(ros::NodeHandle& nh) {
     nh.setParam("bot_hardware_interface", "null");
@@ -46,8 +48,8 @@ bool BotHW::init(ros::NodeHandle& nh) {
         mvrSendDefaultcmd_[i].kp_ = 0.0;
         mvrSendDefaultcmd_[i].kd_ = 0.0;
         if (i == id) {
-            mvrSendDefaultcmd_[i].kp_ = 5.0;
-            mvrSendDefaultcmd_[i].kd_ = 5.0;
+            mvrSendDefaultcmd_[i].kp_ = KP_BASE;
+            mvrSendDefaultcmd_[i].kd_ = KD_BASE;
         }
         mvrSendDefaultcmd_[i].ff_ = 0.0;
     }
@@ -147,6 +149,20 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     ROS_INFO_STREAM("Joint positions: ");
     ROS_INFO_STREAM(" " << test_msg.joint_pos[0]);
 
+    ROS_INFO_STREAM("Torque from Current: ");
+    ROS_INFO_STREAM(" "<< std::abs(motorDate_recv[id].current_));
+
+    double pos_des   = jointCommand_[id].pos_des_;
+    double pos_now   = jointCommand_[id].pos_;
+    double vel_now   = jointCommand_[id].vel_;
+
+    double pos_err = pos_des - pos_now;
+    double torque_pd   = KP_BASE * pos_err - KD_BASE * vel_now;
+
+    ROS_INFO_STREAM("Torque from PD formula: ");
+    ROS_INFO_STREAM(" " << torque_pd);
+
+
     // mvr_robot_control::ObserveData observe_msg;
     // observe_msg.header.stamp = ros::Time::now();
 
@@ -200,8 +216,8 @@ void BotHW::write(ros::Time time, ros::Duration period) {
         mvrSendcmd_[i].kp_      = 0.0;
         mvrSendcmd_[i].kd_      = 0.0;
         if(i == id){
-            mvrSendcmd_[i].kp_      = 5.0;
-            mvrSendcmd_[i].kd_      = 1.0;
+            mvrSendcmd_[i].kp_      = KP_BASE;
+            mvrSendcmd_[i].kd_      = KD_BASE;
         }
         mvrSendcmd_[i].ff_      = 0.0;
     }
