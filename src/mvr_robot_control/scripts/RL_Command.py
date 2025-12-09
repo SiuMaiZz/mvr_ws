@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
+import csv
 from mvr_robot_control.msg import ObserveData, ActionData, TestData
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
@@ -13,6 +14,10 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
+
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_right_arm_pitch_high_v4.csv', mode='w', newline='')
+        self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerow(['step', 'phase', 'obs', 'action_raw', 'action_clipped', 'action_scaled'])  # 表头
 
 # obs_buf = torch.cat((
 #             self.command_input,  # 5 = 2D(sin cos) + 3D(vel_x, vel_y, aug_vel_yaw)
@@ -27,9 +32,14 @@ class ROSNode:
 
         self.last_action = np.zeros(1, dtype=np.float32)
 
+        self.obs_raw = None
+        self.phase_raw = None
+        self.action_clipped = None
+        self.action = None
+
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high_v3.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_right_arm_pitch_high_v4.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -84,7 +94,7 @@ class ROSNode:
 
         cycle_time = 0.64
         # elapsed = (rospy.Time.now() - msg.header.stamp).to_sec()
-        dt = 0.001
+        dt = 0.01
         phase = self.count * dt / cycle_time
         return phase
 
@@ -102,6 +112,7 @@ class ROSNode:
         # ang_vel = np.array(msg.imu_angular_vel) * self.obs_scales['ang_vel']
 
         phase = self._get_phase()
+        self.phase_raw = phase
         sin_pos = np.sin(2 * np.pi * phase)
         cos_pos = np.cos(2 * np.pi * phase)
 
@@ -114,6 +125,8 @@ class ROSNode:
             # np.array(ang_vel, dtype=np.float32),
             # np.array(euler_angles, dtype=np.float32)
         ])
+
+        self.obs_raw = obs.flatten()
 
         self.history_buffer[self.buffer_ptr] = obs
         self.buffer_ptr = (self.buffer_ptr + 1) % 15
@@ -144,11 +157,16 @@ class ROSNode:
 
             with torch.no_grad(): 
                 action = self.model(obs_tensor)
-            
+
             self.last_action = action.cpu().numpy().flatten()
+
             action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
+            self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
+
+
             action_scaled = action * action_scale
             action = action_scaled.cpu().numpy().flatten().astype(np.float32)
+            self.action = action
 
             self.action_msg = ActionData()
             joint_pos = list(action[:1]) 
@@ -156,6 +174,8 @@ class ROSNode:
             #     joint_pos.extend([0] * (1 - len(joint_pos)))
 
             self.action_msg.joint_pos = joint_pos
+
+            self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.last_action[0], self.action_clipped[0], self.action[0]])
 
         self.pub.publish(self.action_msg)
         

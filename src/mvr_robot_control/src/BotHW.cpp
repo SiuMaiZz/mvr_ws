@@ -15,7 +15,7 @@
 #include <mvr_robot_control/TestData.h>
 
 int id = 18;
-double KP_BASE = 8.0;
+double KP_BASE = 30.0;
 double KD_BASE = 5.0;
 
 bool BotHW::init(ros::NodeHandle& nh) {
