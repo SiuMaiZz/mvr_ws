@@ -39,7 +39,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_left_arm_pitch_high_v3.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_left_arm_pitch_low_v3.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 

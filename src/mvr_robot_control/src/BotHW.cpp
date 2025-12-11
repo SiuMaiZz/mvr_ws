@@ -14,7 +14,7 @@
 #include <mvr_robot_control/ActionData.h>
 #include <mvr_robot_control/TestData.h>
 
-int id = 13;
+int id = 16;
 double KP_BASE = 7.0;
 double KD_BASE = 5.0;
 
@@ -237,8 +237,8 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
     ROS_INFO_STREAM("  Joint "<< id << ": " << msg->joint_pos[0]);
 
     if (!msg->joint_pos.empty()) {
-        // jointCommand_[id].pos_des_ = msg->joint_pos[0];
-        jointCommand_[id].pos_des_ = 0 - msg->joint_pos[0];
+        jointCommand_[id].pos_des_ = msg->joint_pos[0];
+        // jointCommand_[id].pos_des_ = 0 - msg->joint_pos[0];
     }
 }
 
