@@ -61,6 +61,9 @@ private:
     hardware_interface::PositionJointInterface joint_position_interface_;
 
     std::vector<double> default_joint_positions_;
+
+    std::vector<double> joint_kps_;
+    std::vector<double> joint_kds_;
     
     MotorData jointCommand_[TOTAL_MOTORS]{};
 

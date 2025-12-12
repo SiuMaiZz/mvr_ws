@@ -1,1 +1,1 @@
-float32[1] joint_pos
+float32[8] joint_pos

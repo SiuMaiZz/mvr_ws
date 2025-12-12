@@ -14,8 +14,9 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
+        self.motor_nums = 8
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_left_arm_pitch_high_v4.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_arms.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_raw', 'action_clipped', 'action_scaled'])  # 表头
 
@@ -27,10 +28,10 @@ class ROSNode:
 #             self.base_ang_vel * self.obs_scales.ang_vel,  # 3
 #             self.base_euler_xyz * self.obs_scales.quat,  # 3
 #         ), dim=-1)   
-        self.history_buffer = np.zeros((15, 5), dtype=np.float32)
+        self.history_buffer = np.zeros((15, self.motor_nums * 3 + 2), dtype=np.float32)
         self.buffer_ptr = 0
 
-        self.last_action = np.zeros(1, dtype=np.float32)
+        self.last_action = np.zeros(self.motor_nums, dtype=np.float32)
 
         self.obs_raw = None
         self.phase_raw = None
@@ -39,7 +40,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_left_arm_pitch_low_v3.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_arms.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -125,9 +126,12 @@ class ROSNode:
             # np.array(ang_vel, dtype=np.float32),
             # np.array(euler_angles, dtype=np.float32)
         ])
+        # print(joint_pos.shape)
+        # print(joint_vel.shape)
+        
 
         self.obs_raw = obs.flatten()
-
+        # print(obs.shape)
         self.history_buffer[self.buffer_ptr] = obs
         self.buffer_ptr = (self.buffer_ptr + 1) % 15
         
@@ -169,17 +173,17 @@ class ROSNode:
             self.action = action
 
             self.action_msg = ActionData()
-            joint_pos = list(action[:1]) 
+            joint_pos = list(action[:self.motor_nums]) 
             # if len(joint_pos) < 1:
             #     joint_pos.extend([0] * (1 - len(joint_pos)))
 
             self.action_msg.joint_pos = joint_pos
 
-            self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.last_action[0], self.action_clipped[0], self.action[0]])
+            self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.last_action, self.action_clipped, self.action])
 
         self.pub.publish(self.action_msg)
         
-        rospy.loginfo(f"Action  Pos    (joint_pos): {self.action_msg.joint_pos}")
+        rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
             
 
         self.count += 1
