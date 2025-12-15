@@ -19,10 +19,10 @@
 double KP_BASE = 7.0;
 double KD_BASE = 5.0;
 
-std::vector<int> motor_ids = {13, 14, 15, 16, 18, 19, 20, 21};
+// std::vector<int> motor_ids = {13, 14, 15, 16, 18, 19, 20, 21};
 // std::vector<int> motor_ids = {18, 19, 20, 21};
 // std::vector<int> motor_ids = {13, 14, 15, 16};
-// std::vector<int> motor_ids = {15, 20};
+std::vector<int> motor_ids = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 bool BotHW::init(ros::NodeHandle& nh) {
     nh.setParam("bot_hardware_interface", "null");
@@ -93,7 +93,7 @@ bool BotHW::init(ros::NodeHandle& nh) {
         
         mvrSendDefaultcmd_[motor_id].pos_des_ = default_joint_positions_[motor_id];
         mvrSendDefaultcmd_[motor_id].vel_des_ = 0.0;
-        mvrSendDefaultcmd_[motor_id].kp_ = joint_kds_[motor_id];
+        mvrSendDefaultcmd_[motor_id].kp_ = joint_kps_[motor_id];
         mvrSendDefaultcmd_[motor_id].kd_ = joint_kds_[motor_id];
         mvrSendDefaultcmd_[motor_id].ff_ = 0.0; 
     }
@@ -163,11 +163,25 @@ void BotHW::read(ros::Time time, ros::Duration period) {
         jointCommand_[motor_id].tau_ = motorDate_recv[motor_id].tau_;
     }
     
-    int index = 0;
-    for (int motor_id : motor_ids) {
-        test_msg.joint_pos[index] = jointCommand_[motor_id].pos_;
-        test_msg.joint_vel[index] = jointCommand_[motor_id].vel_;
-        index++;
+    // int index = 0;
+    // for (int motor_id : motor_ids) {
+    //     test_msg.joint_pos[index] = jointCommand_[motor_id].pos_;
+    //     test_msg.joint_vel[index] = jointCommand_[motor_id].vel_;
+    //     index++;
+    // }
+
+    int out = 0;
+    for (int i = 0; i < 5; ++i) {
+        int motor_id = motor_ids[i];
+        test_msg.joint_pos[out] = jointCommand_[motor_id].pos_;
+        test_msg.joint_vel[out] = jointCommand_[motor_id].vel_;
+        out++;
+    }
+    for (int i = 6; i <= 10; ++i) {
+        int motor_id = motor_ids[i];
+        test_msg.joint_pos[out] = jointCommand_[motor_id].pos_;
+        test_msg.joint_vel[out] = jointCommand_[motor_id].vel_;
+        out++;
     }
 
     observe_pub_.publish(test_msg);
@@ -189,9 +203,21 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     imuData_.linear_acc[1]  = imu_copy.linear_acceleration.y;
     imuData_.linear_acc[2]  = imu_copy.linear_acceleration.z;
 
-    for (int i = 0; i < motor_ids.size(); ++i) {
-        ROS_INFO_STREAM("Joint " << motor_ids[i] << ": " << test_msg.joint_pos[i]);
+    int print = 0;
+    for (int i = 0; i < 5; ++i) {
+        ROS_INFO_STREAM("pub idx " << print << " from motor_id " << motor_ids[i]
+                        << " pos=" << test_msg.joint_pos[print]);
+        print++;
     }
+    for (int i = 6; i <= 10; ++i) {
+        ROS_INFO_STREAM("pub idx " << print << " from motor_id " << motor_ids[i]
+                        << " pos=" << test_msg.joint_pos[print]);
+        print++;
+    }
+
+    // for (int i = 0; i < motor_ids.size(); ++i) {
+    //     ROS_INFO_STREAM("Joint " << motor_ids[i] << ": " << test_msg.joint_pos[i]);
+    // }
 
     // ROS_INFO_STREAM("Torque from Current: ");
     // for (int i = 0; i < motor_ids.size(); ++i) {
@@ -277,7 +303,7 @@ void BotHW::write(ros::Time time, ros::Duration period) {
     //     mvrSendcmd_[i].ff_      = 0.0;
     // }
 
-    for (int motor_id : motor_ids) {
+    for (int motor_id = 0; motor_id < TOTAL_MOTORS; ++motor_id) {
         double desired_pos = jointCommand_[motor_id].pos_des_;
         
         desired_pos = std::max(joint_limits_[motor_id].min_position, desired_pos);
@@ -313,12 +339,30 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
         ROS_WARN_STREAM("Expected " << motor_ids.size() << " joint positions, but received " << msg->joint_pos.size());
     }
 
-    for (int i = 0; i < motor_ids.size(); ++i) {
-        int motor_id = motor_ids[i];
+    // for (int i = 0; i < motor_ids.size(); ++i) {
+    //     int motor_id = motor_ids[i];
 
-        ROS_INFO_STREAM("  Joint " << motor_id << ": " << msg->joint_pos[i]);
+    //     ROS_INFO_STREAM("  Joint " << motor_id << ": " << msg->joint_pos[i]);
         
-        jointCommand_[motor_id].pos_des_ = msg->joint_pos[i];
+    //     jointCommand_[motor_id].pos_des_ = msg->joint_pos[i];
+    // }
+
+    double target12[12];
+
+    for (int i = 0; i < 5; ++i) {
+        target12[i] = msg->joint_pos[i];
+    }
+    target12[5] = -msg->joint_pos[4];
+
+    for (int i = 0; i < 5; ++i) {
+        target12[6 + i] = msg->joint_pos[5 + i];
+    }
+    target12[11] = -msg->joint_pos[9];
+
+    for (int i = 0; i < 12; ++i) {
+        int motor_id = motor_ids[i];
+        jointCommand_[motor_id].pos_des_ = target12[i];
+        ROS_INFO_STREAM("motor_id " << motor_id << " <= target[" << i << "] = " << target12[i]);
     }
 }
 

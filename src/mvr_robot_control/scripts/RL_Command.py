@@ -14,9 +14,9 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
-        self.motor_nums = 8
+        self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_arms.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_legs_5dof.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_raw', 'action_clipped', 'action_scaled'])  # 表头
 
@@ -40,7 +40,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_arms.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_legs_5dof.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
