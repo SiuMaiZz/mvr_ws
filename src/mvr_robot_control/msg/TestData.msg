@@ -1,3 +1,3 @@
 Header header
-    float32[2] joint_pos
-    float32[2] joint_vel
+    float32[10] joint_pos
+    float32[10] joint_vel

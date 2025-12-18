@@ -14,9 +14,9 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
-        self.motor_nums = 2
+        self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_knee.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_legs_5dof_v5.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_raw', 'action_clipped', 'action_scaled'])  # 表头
 
@@ -41,7 +41,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_knee.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_legs_5dof_v5.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -94,7 +94,7 @@ class ROSNode:
         # obs[0] = math.sin(2 * math.pi * self.count * self.cfg.dt / 0.64)
         # obs[1] = math.cos(2 * math.pi * self.count * self.cfg.dt / 0.64)
 
-        cycle_time = 0.64
+        cycle_time = 1.28
         # elapsed = (rospy.Time.now() - msg.header.stamp).to_sec()
         dt = 0.01
         phase = self.count * dt / cycle_time

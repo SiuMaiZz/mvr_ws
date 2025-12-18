@@ -86,6 +86,7 @@ target_link_libraries(motor soem)
 add_executable(mvr_robot_control  
   src/BotHW.cpp
   src/BotControlLoop.cpp
+  src/MechanismSolver.cpp
 )
 # 注意：这里添加了 ${catkin_LIBRARIES} 以确保链接到 ROS 库
 target_link_libraries(mvr_robot_control

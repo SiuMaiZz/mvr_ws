@@ -17,6 +17,7 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 #include "command.h"
 #include "transmit.h"
+#include "mvr_robot_control/MechanismSolver.h"
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <mvr_robot_control/ObserveData.h>
@@ -79,8 +80,15 @@ private:
     std::mutex imu_mutex_;
     std::mutex cmd_mutex_;
 
+    std::unique_ptr<MechanismSolver> solver;
+
     void odomCallback(const sensor_msgs::Imu::ConstPtr &odom);
     void commandCallback(const mvr_robot_control::ActionData::ConstPtr &msg);
+
+    const double l1 = 47.5;
+    const double d1 = 26.0;
+    const double h1 = 213.0;
+    const double h2 = 149.0;
 };
 
 
