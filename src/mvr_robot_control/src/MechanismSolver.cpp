@@ -29,8 +29,8 @@ void MechanismSolver::getPoints(double t1, double t2, double tp, double tr,
 
     A = { l1, d1 * c1, h1 + d1 * s1 };
     B = { l1, -d1 * c2, h2 - d1 * s2 };
-    C = { l1 * cp, d1 * cr, l1 * sp + d1 * sr };
-    D = { l1 * cp, -d1 * cr, l1 * sp - d1 * sr };
+    C = { l1 * cp, d1 * cr, l1 * sp - d1 * sr };
+    D = { l1 * cp, -d1 * cr, l1 * sp + d1 * sr };
 }
 
 bool MechanismSolver::solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2) {

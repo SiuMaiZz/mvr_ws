@@ -24,7 +24,7 @@ public:
         ros::NodeHandle pnh("~");
 
         pnh.param("loop_frequency", loop_hz_, 100.0);           
-        pnh.param("cycle_time_error_threshold", cycle_error_thresh_, 0.001); 
+        pnh.param("cycle_time_error_threshold", cycle_error_thresh_, 0.01); 
 
         last_time_ros_ = ros::Time::now();
         last_time_     = Clock::now();
@@ -75,7 +75,7 @@ private:
     controller_manager::ControllerManager controller_manager_;
 
     double loop_hz_{100.0};
-    double cycle_error_thresh_{0.001};
+    double cycle_error_thresh_{0.01};
 
     ros::Time last_time_ros_;
     Clock::time_point last_time_;
