@@ -18,16 +18,26 @@ struct Point3D {
 
 const double EPSILON = 1e-6;
 const int MAX_ITER = 100;
+const double DIFF_EPS = 1e-6;      
+const double SINGULAR_EPS = 1e-12;  
 
 class MechanismSolver {
 public:
-    MechanismSolver(double _l1, double _d1, double _h1, double _h2);
+    enum class Side { Left, Right };
+
+    MechanismSolver(double _l1, double _d1, double _h1, double _h2, Side side);
 
     bool forwardKinematics(double t1, double t2, double& theta_p, double& theta_r);
 
     bool inverseKinematics(double theta_p, double theta_r, double& t1, double& t2);
 
+    bool motorVelToJointVel(double t1, double t2, double tp, double tr,
+                            double t1dot, double t2dot,
+                            double& tpdot, double& trdot);
+
 private:
+    Side side_;
+
     double l1, d1, h1, h2;
 
     double distSq(const Point3D& p1, const Point3D& p2);
@@ -36,6 +46,17 @@ private:
                    Point3D& A, Point3D& B, Point3D& C, Point3D& D);
 
     bool solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2);
+
+    void constraints(double t1, double t2, double tp, double tr,
+                     double& f1, double& f2);
+
+    bool constraintJacobians(double t1, double t2, double tp, double tr,
+                             double& Gm11, double& Gm12, double& Gm21, double& Gm22,
+                             double& Gj11, double& Gj12, double& Gj21, double& Gj22);
+
+    static bool solve2x2(double a11, double a12, double a21, double a22,
+                         double b1, double b2,
+                         double& x1, double& x2);
 
 };
 

@@ -80,7 +80,8 @@ private:
     std::mutex imu_mutex_;
     std::mutex cmd_mutex_;
 
-    std::unique_ptr<MechanismSolver> solver;
+    std::unique_ptr<MechanismSolver> left_solver;
+    std::unique_ptr<MechanismSolver> right_solver;
 
     void odomCallback(const sensor_msgs::Imu::ConstPtr &odom);
     void commandCallback(const mvr_robot_control::ActionData::ConstPtr &msg);

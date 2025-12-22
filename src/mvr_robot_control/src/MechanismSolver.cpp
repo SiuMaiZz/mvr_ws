@@ -8,8 +8,8 @@
 #include <cmath> 
 #include <iostream>
 
-MechanismSolver::MechanismSolver(double _l1, double _d1, double _h1, double _h2)
-    : l1(_l1), d1(_d1), h1(_h1), h2(_h2) {
+MechanismSolver::MechanismSolver(double _l1, double _d1, double _h1, double _h2, Side _side)
+    : l1(_l1), d1(_d1), h1(_h1), h2(_h2), side_(_side) {
 
 }
 
@@ -27,11 +27,19 @@ void MechanismSolver::getPoints(double t1, double t2, double tp, double tr,
     double cp = cos(tp), sp = sin(tp);
     double cr = cos(tr), sr = sin(tr);
 
-    A = { l1, d1 * c1, h1 + d1 * s1 };
-    B = { l1, -d1 * c2, h2 - d1 * s2 };
-    C = { l1 * cp, d1 * cr, l1 * sp - d1 * sr };
-    D = { l1 * cp, -d1 * cr, l1 * sp + d1 * sr };
+    if (side_ == Side::Left) {
+        A = { l1, d1 * c1, h1 + d1 * s1 };
+        B = { l1, -d1 * c2, h2 - d1 * s2 };
+        C = { l1 * cp, d1 * cr, l1 * sp - d1 * sr };
+        D = { l1 * cp, -d1 * cr, l1 * sp + d1 * sr };
+    } else {
+        A = { l1, -d1 * c1,  h1 - d1 * s1 };
+        B = { l1,  d1 * c2,  h2 + d1 * s2 };
+        C = { l1 * cp, -d1 * cr, -l1 * sp - d1 * sr };
+        D = { l1 * cp,  d1 * cr, -l1 * sp + d1 * sr };
+    }
 }
+    
 
 bool MechanismSolver::solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2) {
     double x1 = 0.0; 
@@ -97,3 +105,73 @@ bool MechanismSolver::inverseKinematics(double theta_p, double theta_r, double& 
     return solveNewton(false, theta_p, theta_r, t1, t2);
 }
 
+void MechanismSolver::constraints(double t1, double t2, double tp, double tr,
+                                  double& f1, double& f2)
+{
+    Point3D A, B, C, D;
+    getPoints(t1, t2, tp, tr, A, B, C, D);
+    f1 = distSq(A, C) - h1 * h1;   
+    f2 = distSq(B, D) - h2 * h2; 
+}
+
+bool MechanismSolver::solve2x2(double a11, double a12, double a21, double a22,
+                               double b1, double b2,
+                               double& x1, double& x2)
+{
+    double det = a11 * a22 - a12 * a21;
+    if (std::abs(det) < SINGULAR_EPS) return false;
+    x1 = ( b1 * a22 - a12 * b2) / det;
+    x2 = ( a11 * b2 - b1 * a21) / det;
+    return true;
+}
+
+bool MechanismSolver::constraintJacobians(double t1, double t2, double tp, double tr,
+                                          double& Gm11, double& Gm12, double& Gm21, double& Gm22,
+                                          double& Gj11, double& Gj12, double& Gj21, double& Gj22)
+{
+    double f1, f2;
+    constraints(t1, t2, tp, tr, f1, f2);
+
+    const double h = DIFF_EPS;
+    double f1p, f2p;
+
+    constraints(t1 + h, t2, tp, tr, f1p, f2p);
+    Gm11 = (f1p - f1) / h;   
+    Gm21 = (f2p - f2) / h;
+
+    constraints(t1, t2 + h, tp, tr, f1p, f2p);
+    Gm12 = (f1p - f1) / h;
+    Gm22 = (f2p - f2) / h;  
+
+    constraints(t1, t2, tp + h, tr, f1p, f2p);
+    Gj11 = (f1p - f1) / h;  
+    Gj21 = (f2p - f2) / h;
+
+    constraints(t1, t2, tp, tr + h, f1p, f2p);
+    Gj12 = (f1p - f1) / h; 
+    Gj22 = (f2p - f2) / h;   
+
+    double detGj = Gj11 * Gj22 - Gj12 * Gj21;
+    if (std::abs(detGj) < SINGULAR_EPS) return false;
+
+    return true;
+}
+
+bool MechanismSolver::motorVelToJointVel(double t1, double t2, double tp, double tr,
+                                         double t1dot, double t2dot,
+                                         double& tpdot, double& trdot)
+{
+    double Gm11, Gm12, Gm21, Gm22;
+    double Gj11, Gj12, Gj21, Gj22;
+    if (!constraintJacobians(t1, t2, tp, tr,
+                             Gm11, Gm12, Gm21, Gm22,
+                             Gj11, Gj12, Gj21, Gj22))
+    {
+        return false;
+    }
+
+    double u1 = Gm11 * t1dot + Gm12 * t2dot;
+    double u2 = Gm21 * t1dot + Gm22 * t2dot;
+
+    return solve2x2(Gj11, Gj12, Gj21, Gj22, -u1, -u2, tpdot, trdot);
+}
