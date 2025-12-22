@@ -18,7 +18,8 @@
 // int id = 15;
 // double KP_BASE = 7.0;
 // double KD_BASE = 5.0;
-// ankle_pitch_limit [-0.3176,0.3176]
+// ankle_pitch_limit [-0.3176, 0.3176]
+// ankle_roll_limit  [-0.3728, 0.3728]
 // std::vector<int> motor_ids = {13, 14, 15, 16, 18, 19, 20, 21};
 // std::vector<int> motor_ids = {18, 19, 20, 21};
 // std::vector<int> motor_ids = {4, 10};
@@ -687,7 +688,7 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
         jointCommand_[motor_id].pos_des_ = msg->joint_pos[msg_idx];
     }
 
-    // ankle
+    // Ankle
     // if (!(left_solver && right_solver)) {
     //     ROS_ERROR_STREAM("MechanismSolver not initialized.");
     //     return;

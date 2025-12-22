@@ -82,6 +82,15 @@ set(SOURCES
 add_library(motor ${SOURCES})
 target_link_libraries(motor soem)
 
+add_executable(test_node 
+  src/AnkleTest.cpp 
+  src/MechanismSolver.cpp)
+target_link_libraries(test_node motor soem ${catkin_LIBRARIES})
+
+add_executable(cmd_node 
+  src/AnkleCmdPub.cpp)
+target_link_libraries(cmd_node motor soem ${catkin_LIBRARIES})
+
 # 8. 编译 mvr_robot_control 可执行文件 (保持不变)
 add_executable(mvr_robot_control  
   src/BotHW.cpp
