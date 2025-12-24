@@ -61,6 +61,8 @@ private:
     hardware_interface::JointStateInterface joint_state_interface_;
     hardware_interface::PositionJointInterface joint_position_interface_;
 
+    bool emergencyStopFlag_{false};
+
     std::vector<double> default_joint_positions_;
 
     std::vector<double> joint_kps_;

@@ -15,15 +15,15 @@ int main(int argc, char** argv) {
     msg.data.resize(4);
 
     // 示例：左脚 pitch 正弦，roll 0；右脚相反
-    msg.data[0] = 0.2 * std::sin(t);  // tpL
-    msg.data[1] = 0.0;               // trL
-    msg.data[2] = -0.2 * std::sin(t);// tpR
-    msg.data[3] = 0.0;               // trR
+    // msg.data[0] = 0.2 * std::sin(t);  // tpL
+    // msg.data[1] = 0.0;               // trL
+    // msg.data[2] = -0.2 * std::sin(t);// tpR
+    // msg.data[3] = 0.0;               // trR
 
-    // msg.data[0] = 0.0;  
-    // msg.data[1] = 0.3 * std::sin(t);              
-    // msg.data[2] = 0.0;
-    // msg.data[3] = -0.3 * std::sin(t);              
+    msg.data[0] = 0.0;  
+    msg.data[1] = 0.3 * std::sin(t);              
+    msg.data[2] = 0.0;
+    msg.data[3] = 0.3 * std::sin(t);              
 
     pub.publish(msg);
     ROS_INFO_STREAM_THROTTLE(0.5,
