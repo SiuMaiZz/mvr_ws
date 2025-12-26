@@ -14,11 +14,13 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
-        self.motor_nums = 4
+        self.motor_nums = 22
 
-        # self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_20dof_v3.csv', mode='w', newline='')
-        # self.csv_writer = csv.writer(self.csv_file)
-        # self.csv_writer.writerow(['step', 'phase', 'obs', 'action_raw', 'action_clipped', 'action_scaled'])  # 表头
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_22dof_v7.csv', mode='w', newline='')
+        self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
+
+        
 
 # obs_buf = torch.cat((
 #             self.command_input,  # 5 = 2D(sin cos) + 3D(vel_x, vel_y, aug_vel_yaw)
@@ -28,7 +30,7 @@ class ROSNode:
 #             self.base_ang_vel * self.obs_scales.ang_vel,  # 3
 #             self.base_euler_xyz * self.obs_scales.quat,  # 3
 #         ), dim=-1)   
-        self.history_buffer = np.zeros((15, self.motor_nums * 3 + 2), dtype=np.float32)
+        self.history_buffer = np.zeros((1, self.motor_nums * 3 + 2), dtype=np.float32)
         # print(self.history_buffer.shape, 'A')
         self.buffer_ptr = 0
 
@@ -41,7 +43,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_ankle_v3.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_1_22dof_v7.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -87,7 +89,24 @@ class ROSNode:
             'quat': 1,
         }
 
-        self.default_pos = 0
+        self.default_pos = np.array([
+            -0.25, -0.02, -0.01, -0.5,  0.3, -0.01,
+            0.25,   0.02, -0.01,  0.5, -0.3,  0.01,
+            0.0, 0.0, 
+            0.0, 0.0, 0.0, -1.0,
+            0.0, 0.0, 0.0,  1.0
+        ], dtype=np.float32)
+
+        self.smoothed_joint_pos = np.array(self.default_pos, dtype=np.float32)  # 初始平滑值设置为默认关节位置
+        self.smooth_alpha = 0.3  # 平滑系数，可以根据需求调整
+
+        self.last_three_joint_pos = np.zeros((3, self.motor_nums), dtype=np.float32)
+        self.smooth_weights = np.array([0.3, 0.4, 0.3])  
+
+        self.last_five_joint_pos = np.zeros((5, self.motor_nums), dtype=np.float32)
+        self.smooth_weights = np.array([0.2, 0.2, 0.2, 0.2, 0.2]) 
+
+        self.temp_joint_pos = np.zeros(self.motor_nums, dtype=np.float32)
 
     def _get_phase(self):
 
@@ -135,7 +154,7 @@ class ROSNode:
         self.obs_raw = obs.flatten()
         # print(obs.shape)
         self.history_buffer[self.buffer_ptr] = obs
-        self.buffer_ptr = (self.buffer_ptr + 1) % 15
+        self.buffer_ptr = (self.buffer_ptr + 1) % 1
         
         obs_buf = self.history_buffer.reshape(1,-1)
 
@@ -153,15 +172,21 @@ class ROSNode:
 # clip_actions = 18.
 
     def callback(self, msg):
-        decimation = 1
-        
-        if self.count % decimation == 0:
+        # stop_step = 400
+
+        # if self.count >= stop_step:
+        #     rospy.loginfo("Stopping publishing!")
+        #     return
+    
+        decimation = 5
+
+        if self.count % decimation != 0:
             obs = self.compute_obs(msg)
             obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
             action_scale = 0.25
             clip_actions = 18
 
-            with torch.no_grad(): 
+            with torch.no_grad():
                 action = self.model(obs_tensor)
 
             self.last_action = action.cpu().numpy().flatten()
@@ -169,23 +194,96 @@ class ROSNode:
             action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
             self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
 
-
             action_scaled = action * action_scale
             action = action_scaled.cpu().numpy().flatten().astype(np.float32)
             self.action = action
 
-            self.action_msg = ActionData()
-            joint_pos = list(action[:self.motor_nums]) 
-            # if len(joint_pos) < 1:
-            #     joint_pos.extend([0] * (1 - len(joint_pos)))
+            joint_pos_np = self.default_pos[:self.motor_nums] + action[:self.motor_nums]
 
+            # 保存当前的 joint_pos
+            self.last_five_joint_pos[4] = self.last_five_joint_pos[3]
+            self.last_five_joint_pos[3] = self.last_five_joint_pos[2]
+            self.last_five_joint_pos[2] = self.last_five_joint_pos[1]
+            self.last_five_joint_pos[1] = self.last_five_joint_pos[0]
+            self.last_five_joint_pos[0] = joint_pos_np
+
+            # 对五次的 joint_pos 进行加权平均
+            smoothed_joint_pos_np = np.average(self.last_five_joint_pos, axis=0, weights=self.smooth_weights)
+            self.smoothed_joint_pos = smoothed_joint_pos_np  # 更新平滑值
+
+            self.temp_joint_pos = smoothed_joint_pos_np  # 保存当前的平滑值用于发送
+
+        # 每五步发送一次消息
+        if self.count % decimation == 0:
+            joint_pos = self.temp_joint_pos.astype(np.float32).tolist()
+
+            self.action_msg = ActionData()
             self.action_msg.joint_pos = joint_pos
 
-            # self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.last_action, self.action_clipped, self.action])
+            # 写入 CSV
+            self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.action, joint_pos])
 
-        self.pub.publish(self.action_msg)
+            self.pub.publish(self.action_msg)
+
+            rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
+
+        self.count += 1
+
         
-        rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
+        # if self.count % decimation == 0:
+        #     obs = self.compute_obs(msg)
+        #     obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
+        #     # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!", obs_tensor.shape)
+        #     action_scale = 0.25
+        #     clip_actions = 18
+
+        #     with torch.no_grad(): 
+        #         action = self.model(obs_tensor)
+
+        #     self.last_action = action.cpu().numpy().flatten()
+
+        #     action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
+        #     self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
+
+
+        #     action_scaled = action * action_scale
+        #     action = action_scaled.cpu().numpy().flatten().astype(np.float32)
+        #     self.action = action
+
+        #     joint_pos_np = self.default_pos[:self.motor_nums] + action[:self.motor_nums]
+        #     # joint_pos = joint_pos_np.astype(np.float32).tolist()
+
+        #     # smoothed_joint_pos_np = self.smooth_alpha * joint_pos_np + (1 - self.smooth_alpha) * self.smoothed_joint_pos
+        #     # self.smoothed_joint_pos = smoothed_joint_pos_np  # 更新平滑值
+        #     # joint_pos = smoothed_joint_pos_np.astype(np.float32).tolist()
+
+        #     self.last_three_joint_pos[2] = self.last_three_joint_pos[1]
+        #     self.last_three_joint_pos[1] = self.last_three_joint_pos[0]
+        #     self.last_three_joint_pos[0] = joint_pos_np
+
+        #     smoothed_joint_pos_np = np.average(self.last_three_joint_pos, axis=0, weights=self.smooth_weights)
+        #     self.smoothed_joint_pos = smoothed_joint_pos_np
+        #     joint_pos = smoothed_joint_pos_np.astype(np.float32).tolist()
+
+
+        #     # lo, hi = -0.1, 0.1
+        #     # start_idx, end_idx = 12, 21
+        #     # if len(joint_pos) > start_idx:
+        #     #     end = min(end_idx, len(joint_pos) - 1)
+        #     #     for i in range(start_idx, end + 1):
+        #     #         if lo <= joint_pos[i] <= hi:
+        #     #             joint_pos[i] = 0.0
+        #     # if len(joint_pos) < 1:
+        #     #     joint_pos.extend([0] * (1 - len(joint_pos)))
+
+        #     self.action_msg = ActionData()
+        #     self.action_msg.joint_pos = joint_pos
+
+        #     self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.action, joint_pos])
+
+        # self.pub.publish(self.action_msg)
+        
+        # rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
             
 
         self.count += 1
