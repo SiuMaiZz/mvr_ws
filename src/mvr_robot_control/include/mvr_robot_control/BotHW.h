@@ -73,7 +73,7 @@ private:
     ImuData imuData_{};
 
     YKSMotorData mvrSendcmd_[TOTAL_MOTORS];
-    YKSMotorData mvrSendDefaultcmd_[TOTAL_MOTORS];
+    // YKSMotorData mvrSendDefaultcmd_[TOTAL_MOTORS];
 
     sensor_msgs::Imu yesenceIMU_;
     ros::Subscriber imu_sub_;
@@ -87,6 +87,7 @@ private:
 
     void odomCallback(const sensor_msgs::Imu::ConstPtr &odom);
     void commandCallback(const mvr_robot_control::ActionData::ConstPtr &msg);
+    bool smoothStartupToDefault(double ramp_duration_sec, int warmup_frames, double hz);
 
     const double l1 = 47.5;
     const double d1 = 26.0;

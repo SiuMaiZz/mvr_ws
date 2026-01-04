@@ -35,17 +35,30 @@ public:
                             double t1dot, double t2dot,
                             double& tpdot, double& trdot);
 
+    void resetWarmStart();
+
 private:
     Side side_;
 
     double l1, d1, h1, h2;
+
+    bool   has_last_fk_{false};
+    double last_tp_{0.0};
+    double last_tr_{0.0};
+
+    bool   has_last_ik_{false};
+    double last_t1_{0.0};
+    double last_t2_{0.0};
 
     double distSq(const Point3D& p1, const Point3D& p2);
 
     void getPoints(double t1, double t2, double tp, double tr, 
                    Point3D& A, Point3D& B, Point3D& C, Point3D& D);
 
-    bool solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2);
+    bool solveNewton(bool is_forward, 
+                     double known_1, double known_2,
+                     double& out_1, double& out_2,
+                     double x1_init, double x2_init);
 
     void constraints(double t1, double t2, double tp, double tr,
                      double& f1, double& f2);

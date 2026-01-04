@@ -39,11 +39,18 @@ void MechanismSolver::getPoints(double t1, double t2, double tp, double tr,
         D = { l1 * cp,  d1 * cr, -l1 * sp + d1 * sr };
     }
 }
+
+void MechanismSolver::resetWarmStart() {
+  has_last_fk_ = false;
+  has_last_ik_ = false;
+  last_tp_ = last_tr_ = 0.0;
+  last_t1_ = last_t2_ = 0.0;
+}
     
 
-bool MechanismSolver::solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2) {
-    double x1 = 0.0; 
-    double x2 = 0.0; 
+bool MechanismSolver::solveNewton(bool is_forward, double known_1, double known_2, double& out_1, double& out_2, double x1_init, double x2_init) {
+    double x1 = x1_init; 
+    double x2 = x2_init; 
 
     for (int i = 0; i < MAX_ITER; ++i) {
         Point3D A, B, C, D;
@@ -98,11 +105,29 @@ bool MechanismSolver::solveNewton(bool is_forward, double known_1, double known_
 }
 
 bool MechanismSolver::forwardKinematics(double t1, double t2, double& theta_p, double& theta_r) {
-    return solveNewton(true, t1, t2, theta_p, theta_r);
+    const double init_tp = has_last_fk_ ? last_tp_ : 0.0;
+    const double init_tr = has_last_fk_ ? last_tr_ : 0.0;
+
+    bool ok = solveNewton(true, t1, t2, theta_p, theta_r, init_tp, init_tr);
+    if (ok) {
+        last_tp_ = theta_p;
+        last_tr_ = theta_r;
+        has_last_fk_ = true;
+    }
+    return ok;
 }
 
 bool MechanismSolver::inverseKinematics(double theta_p, double theta_r, double& t1, double& t2) {
-    return solveNewton(false, theta_p, theta_r, t1, t2);
+    const double init_t1 = has_last_ik_ ? last_t1_ : 0.0;
+    const double init_t2 = has_last_ik_ ? last_t2_ : 0.0;
+
+    bool ok = solveNewton(false, theta_p, theta_r, t1, t2, init_t1, init_t2);
+    if (ok) {
+        last_t1_ = t1;
+        last_t2_ = t2;
+        has_last_ik_ = true;
+    }
+    return ok;
 }
 
 void MechanismSolver::constraints(double t1, double t2, double tp, double tr,

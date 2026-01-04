@@ -15,6 +15,23 @@
 #include <mvr_robot_control/ActionData.h>
 #include <mvr_robot_control/TestData.h>
 
+
+static inline double smooth01(double t, double T) {
+  if (T <= 0.0) return 1.0;
+  if (t <= 0.0) return 0.0;
+  if (t >= T)   return 1.0;
+  const double u = t / T;
+  return 0.5 - 0.5 * std::cos(M_PI * u);
+}
+
+static inline double smooth01_dot(double t, double T) {
+  if (T <= 0.0) return 0.0;
+  if (t <= 0.0) return 0.0;
+  if (t >= T)   return 0.0;
+  const double u = t / T;
+  return (M_PI / (2.0 * T)) * std::sin(M_PI * u);
+}
+
 // int id = 15;
 // double KP_BASE = 7.0;
 // double KD_BASE = 5.0;
@@ -74,28 +91,29 @@ bool BotHW::init(ros::NodeHandle& nh) {
 
         if (ros::param::get(param_name_pds + "/kp", joint_kps_[motor_id]) &&
             ros::param::get(param_name_pds + "/kd", joint_kds_[motor_id])) {
-            ROS_INFO_STREAM("Loaded kp and kd for motor " << motor_id << ": " << joint_kps_[motor_id] << ", " << joint_kds_[motor_id]);
+            // ROS_INFO_STREAM("Loaded kp and kd for motor " << motor_id << ": " << joint_kps_[motor_id] << ", " << joint_kds_[motor_id]);
         } else {
             ROS_WARN_STREAM("Failed to load kp or kd for motor " << motor_id);
         }
     }
 
-    for (int i = 0; i < motor_ids.size(); ++i) {
-        int motor_id = motor_ids[i];
+    // for (int i = 0; i < motor_ids.size(); ++i) {
+    //     int motor_id = motor_ids[i];
 
-        jointCommand_[motor_id].pos_des_ = default_joint_positions_[motor_id];
+    //     jointCommand_[motor_id].pos_des_ = default_joint_positions_[motor_id];
         
-        mvrSendDefaultcmd_[motor_id].pos_des_ = default_joint_positions_[motor_id];
-        mvrSendDefaultcmd_[motor_id].vel_des_ = 0.0;
-        mvrSendDefaultcmd_[motor_id].kp_ = joint_kps_[motor_id];
-        mvrSendDefaultcmd_[motor_id].kd_ = joint_kds_[motor_id];
-        mvrSendDefaultcmd_[motor_id].ff_ = 0.0; 
-    }
+    //     mvrSendDefaultcmd_[motor_id].pos_des_ = default_joint_positions_[motor_id];
+    //     mvrSendDefaultcmd_[motor_id].vel_des_ = 0.0;
+    //     mvrSendDefaultcmd_[motor_id].kp_ = joint_kps_[motor_id];
+    //     mvrSendDefaultcmd_[motor_id].kd_ = joint_kds_[motor_id];
+    //     mvrSendDefaultcmd_[motor_id].ff_ = 0.0; 
+    // }
 
-    ROS_INFO("Default joint positions initialized statically");
+    // ROS_INFO("Default joint positions initialized statically");
 
-    EtherCAT_Send_Command_New((YKSMotorData*)mvrSendDefaultcmd_);
-    EtherCAT_Get_State_New();
+    // EtherCAT_Send_Command_New((YKSMotorData*)mvrSendDefaultcmd_);
+    // EtherCAT_Get_State_New();
+    smoothStartupToDefault(3.0, 50, 50.0);
 
     std::vector<std::string> joint_names {
         "left_hip_pitch_joint",  "left_hip_roll_joint",   "left_hip_yaw_joint",  "left_knee_joint",  "left_ankle_pitch_joint",  "left_ankle_roll_joint",
@@ -136,6 +154,116 @@ bool BotHW::init(ros::NodeHandle& nh) {
     ROS_INFO_STREAM("BotHW Initial Joints Number: " << joint_names.size());
     return true;
 }
+
+bool BotHW::smoothStartupToDefault(double ramp_duration_sec,
+                                  int warmup_frames,
+                                  double hz) {
+    if (hz <= 1e-6) hz = 50.0;
+    ros::Rate rate(hz);
+
+    ROS_INFO_STREAM("[init] smoothStartupToDefault begin. warmup_frames="
+                    << warmup_frames << ", ramp=" << ramp_duration_sec
+                    << "s, hz=" << hz);
+  
+    ROS_INFO("[init] Stage=BOOTSTRAP: send dummy cmd then get state.");
+    for (int motor_id : motor_ids) {
+        mvrSendcmd_[motor_id].kp_      = 0.0;
+        mvrSendcmd_[motor_id].kd_      = 0.0;
+        mvrSendcmd_[motor_id].ff_      = 0.0;
+        mvrSendcmd_[motor_id].vel_des_ = 0.0;
+        mvrSendcmd_[motor_id].pos_des_ = default_joint_positions_[motor_id];
+    }
+
+    EtherCAT_Send_Command_New((YKSMotorData*)mvrSendcmd_);
+    EtherCAT_Get_State_New();   
+    rate.sleep();
+
+    ROS_INFO_STREAM("[init] Stage=WARMUP: hold current pos with kp/kd=0 for "
+                    << warmup_frames << " frames.");
+    for (int k = 0; k < warmup_frames && ros::ok(); ++k) {
+        for (int motor_id : motor_ids) {
+            mvrSendcmd_[motor_id].pos_des_ = motorDate_recv[motor_id].pos_;
+            mvrSendcmd_[motor_id].vel_des_ = 0.0;
+            mvrSendcmd_[motor_id].kp_      = 0.0;
+            mvrSendcmd_[motor_id].kd_      = 0.0;
+            mvrSendcmd_[motor_id].ff_      = 0.0;
+        }
+        EtherCAT_Send_Command_New((YKSMotorData*)mvrSendcmd_);
+        EtherCAT_Get_State_New();
+        rate.sleep();
+
+        if ((k % 10) == 0) {
+            ROS_INFO_STREAM("[init] WARMUP progress: " << k << "/" << warmup_frames);
+        }
+    }
+
+    ROS_INFO("[init] Stage=CAPTURE: capture q_init and targets.");
+    std::array<double, TOTAL_MOTORS> q_init{};
+    std::array<double, TOTAL_MOTORS> q_target{};
+    std::array<double, TOTAL_MOTORS> kp_target{};
+    std::array<double, TOTAL_MOTORS> kd_target{};
+
+    for (int motor_id : motor_ids) {
+        q_init[motor_id]    = motorDate_recv[motor_id].pos_;
+        q_target[motor_id]  = default_joint_positions_[motor_id];
+        kp_target[motor_id] = joint_kps_[motor_id];
+        kd_target[motor_id] = joint_kds_[motor_id];
+    }
+
+    const double dt = 1.0 / hz;
+    const int ramp_steps = std::max(1, (int)std::ceil(ramp_duration_sec * hz));
+
+    ROS_INFO_STREAM("[init] Stage=RAMP: cosine ramp to default for "
+                    << ramp_steps << " steps.");
+
+    int last_print_percent = -1;
+    for (int n = 0; n < ramp_steps && ros::ok(); ++n) {
+        const double t  = n * dt;
+        const double s  = smooth01(t, ramp_duration_sec);
+        const double sd = smooth01_dot(t, ramp_duration_sec);
+
+        for (int motor_id : motor_ids) {
+            const double dq = q_target[motor_id] - q_init[motor_id];
+
+            mvrSendcmd_[motor_id].pos_des_ = q_init[motor_id] + s * dq;
+            mvrSendcmd_[motor_id].vel_des_ = sd * dq;
+            mvrSendcmd_[motor_id].kp_      = s * kp_target[motor_id];
+            mvrSendcmd_[motor_id].kd_      = s * kd_target[motor_id];
+            mvrSendcmd_[motor_id].ff_      = 0.0;
+        }
+
+        EtherCAT_Send_Command_New((YKSMotorData*)mvrSendcmd_);
+        EtherCAT_Get_State_New();     
+        rate.sleep();
+
+        int percent = (int)std::floor(100.0 * (double)n / (double)(ramp_steps - 1));
+        if (percent != last_print_percent && (percent % 10) == 0) {
+            last_print_percent = percent;
+            ROS_INFO_STREAM("[init] RAMP progress: " << percent << "% (t=" << t << "s)");
+        }
+    }
+
+    ROS_INFO("[init] Stage=FINALIZE: lock default pos and full gains.");
+    for (int motor_id : motor_ids) {
+        mvrSendcmd_[motor_id].pos_des_ = q_target[motor_id];
+        mvrSendcmd_[motor_id].vel_des_ = 0.0;
+        mvrSendcmd_[motor_id].kp_      = kp_target[motor_id];
+        mvrSendcmd_[motor_id].kd_      = kd_target[motor_id];
+        mvrSendcmd_[motor_id].ff_      = 0.0;
+
+        jointCommand_[motor_id].pos_des_ = q_target[motor_id];
+    }
+
+    EtherCAT_Send_Command_New((YKSMotorData*)mvrSendcmd_);
+    EtherCAT_Get_State_New(); 
+    rate.sleep();
+
+    ROS_INFO_STREAM("[init] smoothStartupToDefault finished. T=" << ramp_duration_sec
+                    << "s, warmup_frames=" << warmup_frames << ", hz=" << hz);
+    return true;
+}
+
+
 
 void BotHW::read(ros::Time time, ros::Duration period) {
 
