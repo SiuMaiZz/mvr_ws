@@ -16,6 +16,7 @@ spsc_queue<EtherCAT_Msg_ptr, capacity<10>> messages[SLAVE_NUMBER];
 std::atomic<bool> running{ false };
 std::thread runThread;
 YKSMotorData motorDate_recv[TOTAL_MOTORS];
+YKSMotorData motorDate_recv_hunter[10];
 YKSIMUData imuData_recv;
 char IOmap[4096];
 OSAL_THREAD_HANDLE checkThread;
@@ -369,33 +370,33 @@ void EtherCAT_Get_State()
       RV_can_imu_data_repack(&Rx_Message[slave]);
     if (slave == 0)
     {
-      for (int motor_index = 0; motor_index < 6; motor_index++)
+      for (int motor_index = 0; motor_index < 5; motor_index++)
       {
-        motorDate_recv[motor_index].pos_ = rv_motor_msg[motor_index].angle_actual_rad;
-        motorDate_recv[motor_index].vel_ = rv_motor_msg[motor_index].speed_actual_rad;
+        motorDate_recv_hunter[motor_index].pos_ = rv_motor_msg[motor_index].angle_actual_rad;
+        motorDate_recv_hunter[motor_index].vel_ = rv_motor_msg[motor_index].speed_actual_rad;
         if (motor_index == 2 || motor_index == 3)
         {
-          motorDate_recv[motor_index].tau_ = rv_motor_msg[motor_index].current_actual_float * 2.1;
+          motorDate_recv_hunter[motor_index].tau_ = rv_motor_msg[motor_index].current_actual_float * 2.1;
         }
         else
         {
-          motorDate_recv[motor_index].tau_ = rv_motor_msg[motor_index].current_actual_float * 1.4;
+          motorDate_recv_hunter[motor_index].tau_ = rv_motor_msg[motor_index].current_actual_float * 1.4;
         }
       }
     }
     else if (slave == 1)
     {
-      for (int motor_index = 0; motor_index < 6; motor_index++)
+      for (int motor_index = 0; motor_index < 5; motor_index++)
       {
-        motorDate_recv[motor_index + 6].pos_ = rv_motor_msg[motor_index].angle_actual_rad;
-        motorDate_recv[motor_index + 6].vel_ = rv_motor_msg[motor_index].speed_actual_rad;
+        motorDate_recv_hunter[motor_index + 5].pos_ = rv_motor_msg[motor_index].angle_actual_rad;
+        motorDate_recv_hunter[motor_index + 5].vel_ = rv_motor_msg[motor_index].speed_actual_rad;
         if (motor_index == 2 || motor_index == 3)
         {
-          motorDate_recv[motor_index + 6].tau_ = rv_motor_msg[motor_index].current_actual_float * 2.1;
+          motorDate_recv_hunter[motor_index + 5].tau_ = rv_motor_msg[motor_index].current_actual_float * 2.1;
         }
         else
         {
-          motorDate_recv[motor_index + 6].tau_ = rv_motor_msg[motor_index].current_actual_float * 1.4;
+          motorDate_recv_hunter[motor_index + 5].tau_ = rv_motor_msg[motor_index].current_actual_float * 1.4;
         }
       }
     }
@@ -408,7 +409,7 @@ void EtherCAT_Get_State()
       memcpy(imuData_recv.quat_float, imu_msg.quat_float, 4 * 4);
     }
 
-    for (int motor_id = 0; motor_id < 6; motor_id++)
+    for (int motor_id = 0; motor_id < 5; motor_id++)
     {
       rv_motor_msg[motor_id].angle_actual_rad = 0;
     }
@@ -529,62 +530,56 @@ void EtherCAT_Send_Command(YKSMotorData* mot_data)
     else if (index == 2)
     {
       slave = 0;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 3, 3, mot_data[2].kp_, mot_data[2].kd_, mot_data[2].pos_des_,
+      send_motor_ctrl_cmd(&Tx_Message[slave], 4, 3, mot_data[2].kp_, mot_data[2].kd_, mot_data[2].pos_des_,
                           mot_data[2].vel_des_, mot_data[2].ff_);
     }
     else if (index == 3)
     {
       slave = 0;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 4, 4, mot_data[3].kp_, mot_data[3].kd_, mot_data[3].pos_des_,
+      send_motor_ctrl_cmd(&Tx_Message[slave], 5, 4, mot_data[3].kp_, mot_data[3].kd_, mot_data[3].pos_des_,
                           mot_data[3].vel_des_, mot_data[3].ff_);
     }
     else if (index == 4)
     {
       slave = 0;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 5, 5, mot_data[4].kp_, mot_data[4].kd_, mot_data[4].pos_des_,
+      send_motor_ctrl_cmd(&Tx_Message[slave], 6, 5, mot_data[4].kp_, mot_data[4].kd_, mot_data[4].pos_des_,
                           mot_data[4].vel_des_, mot_data[4].ff_);
     }
     else if (index == 5)
     {
-      slave = 0;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 6, 6, mot_data[5].kp_, mot_data[5].kd_, mot_data[5].pos_des_,
-                          mot_data[5].vel_des_, mot_data[5].ff_);
     }
     else if (index == 6)
     {
       slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 1, 1, mot_data[6].kp_, mot_data[6].kd_, mot_data[6].pos_des_,
-                          mot_data[6].vel_des_, mot_data[6].ff_);
+      send_motor_ctrl_cmd(&Tx_Message[slave], 1, 1, mot_data[5].kp_, mot_data[5].kd_, mot_data[5].pos_des_,
+                          mot_data[5].vel_des_, mot_data[5].ff_);
     }
     else if (index == 7)
     {
       slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 2, 2, mot_data[7].kp_, mot_data[7].kd_, mot_data[7].pos_des_,
-                          mot_data[7].vel_des_, mot_data[7].ff_);
+      send_motor_ctrl_cmd(&Tx_Message[slave], 2, 2, mot_data[6].kp_, mot_data[6].kd_, mot_data[6].pos_des_,
+                          mot_data[6].vel_des_, mot_data[6].ff_);
     }
     else if (index == 8)
     {
       slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 3, 3, mot_data[8].kp_, mot_data[8].kd_, mot_data[8].pos_des_,
-                          mot_data[8].vel_des_, mot_data[8].ff_);
+      send_motor_ctrl_cmd(&Tx_Message[slave], 4, 3, mot_data[7].kp_, mot_data[7].kd_, mot_data[7].pos_des_,
+                          mot_data[7].vel_des_, mot_data[7].ff_);
     }
     else if (index == 9)
     {
       slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 4, 4, mot_data[9].kp_, mot_data[9].kd_, mot_data[9].pos_des_,
-                          mot_data[9].vel_des_, mot_data[9].ff_);
+      send_motor_ctrl_cmd(&Tx_Message[slave], 5, 4, mot_data[8].kp_, mot_data[8].kd_, mot_data[8].pos_des_,
+                          mot_data[8].vel_des_, mot_data[8].ff_);
     }
     else if (index == 10)
     {
       slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 5, 5, mot_data[10].kp_, mot_data[10].kd_, mot_data[10].pos_des_,
-                          mot_data[10].vel_des_, mot_data[10].ff_);
+      send_motor_ctrl_cmd(&Tx_Message[slave], 6, 5, mot_data[9].kp_, mot_data[9].kd_, mot_data[9].pos_des_,
+                          mot_data[9].vel_des_, mot_data[9].ff_);
     }
     else if (index == 11)
     {
-      slave = 1;
-      send_motor_ctrl_cmd(&Tx_Message[slave], 6, 6, mot_data[11].kp_, mot_data[11].kd_, mot_data[11].pos_des_,
-                          mot_data[11].vel_des_, mot_data[11].ff_);
     }
 
     if (index == 5 || index == 11)
@@ -594,9 +589,7 @@ void EtherCAT_Send_Command(YKSMotorData* mot_data)
         *(EtherCAT_Msg*)(ec_slave[slave + 1].outputs) = Tx_Message[slave];
     }
   }
-
   ec_send_processdata();
-
 }
 
 void EtherCAT_Send_Command_New(YKSMotorData* mot_data)

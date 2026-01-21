@@ -44,6 +44,7 @@ typedef struct
   double pos_des_, vel_des_, kp_, kd_, ff_;
 } YKSMotorData;
 extern YKSMotorData motorDate_recv[TOTAL_MOTORS];
+extern YKSMotorData motorDate_recv_hunter[10];
 typedef struct
 {
   float angle_float[3];

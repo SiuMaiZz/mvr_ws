@@ -42,7 +42,7 @@ static inline double smooth01_dot(double t, double T) {
 // std::vector<int> motor_ids = {4, 10};
 // std::vector<int> motor_ids = {0, 6};
 // std::vector<int> motor_ids = {3, 9};
-// std::vector<int> motor_ids = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+// std::vector<int> motor_ids = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 std::vector<int> motor_ids = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
                               12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
 // std::vector<int> motor_ids = {4, 5, 10, 11};
@@ -52,8 +52,8 @@ bool BotHW::init(ros::NodeHandle& nh) {
 
     imu_sub_     = nh.subscribe("/imu/data", 1000, &BotHW::odomCallback, this);
     command_sub_ = nh.subscribe("/control_cmd", 1000, &BotHW::commandCallback, this);
-    // observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 50);
-    observe_pub_ = nh.advertise<mvr_robot_control::TestData>("/observe_data", 1000);
+    observe_pub_ = nh.advertise<mvr_robot_control::ObserveData>("/observe_data", 50);
+    // observe_pub_ = nh.advertise<mvr_robot_control::TestData>("/observe_data", 1000);
 
     left_solver = std::make_unique<MechanismSolver>(l1, d1, h1, h2, MechanismSolver::Side::Left);
     right_solver = std::make_unique<MechanismSolver>(l1, d1, h1, h2, MechanismSolver::Side::Right);
@@ -115,11 +115,16 @@ bool BotHW::init(ros::NodeHandle& nh) {
     // EtherCAT_Get_State_New();
     smoothStartupToDefault(3.0, 50, 50.0);
 
+    // std::vector<std::string> joint_names {
+    //     "left_hip_pitch_joint",  "left_hip_roll_joint",   "left_hip_yaw_joint",  "left_knee_joint",  "left_ankle_pitch_joint",  "left_ankle_roll_joint",
+    //     "right_hip_pitch_joint", "right_hip_roll_joint",  "right_hip_yaw_joint", "right_knee_joint", "right_ankle_pitch_joint", "right_ankle_roll_joint",
+    //     "waist_joint", "left_arm_pitch_higher_joint",  "left_arm_roll_joint",  "left_arm_yaw_joint",  "left_arm_pitch_lower_joint",
+    //     "head_joint",  "right_arm_pitch_higher_joint", "right_arm_roll_joint", "right_arm_yaw_joint", "right_arm_pitch_lower_joint"
+    // };
+
     std::vector<std::string> joint_names {
-        "left_hip_pitch_joint",  "left_hip_roll_joint",   "left_hip_yaw_joint",  "left_knee_joint",  "left_ankle_pitch_joint",  "left_ankle_roll_joint",
-        "right_hip_pitch_joint", "right_hip_roll_joint",  "right_hip_yaw_joint", "right_knee_joint", "right_ankle_pitch_joint", "right_ankle_roll_joint",
-        "waist_joint", "left_arm_pitch_higher_joint",  "left_arm_roll_joint",  "left_arm_yaw_joint",  "left_arm_pitch_lower_joint",
-        "head_joint",  "right_arm_pitch_higher_joint", "right_arm_roll_joint", "right_arm_yaw_joint", "right_arm_pitch_lower_joint"
+        "left_hip_roll_joint",  "left_hip_yaw_joint",   "left_hip_pitch_joint",  "left_knee_joint",  "left_ankle_pitch_joint",
+        "right_hip_roll_joint", "right_hip_yaw_joint",  "right_hip_pitch_joint", "right_knee_joint", "right_ankle_pitch_joint"
     };
 
     // std::vector<int> motor_ids(joint_names.size());
@@ -269,18 +274,148 @@ void BotHW::read(ros::Time time, ros::Duration period) {
 
     EtherCAT_Get_State_New();
 
-    mvr_robot_control::TestData test_msg;
-    test_msg.header.stamp = ros::Time::now();
-
-    // test_msg.joint_pos[0] = jointCommand_[id].pos_;
-    // test_msg.joint_vel[0] = jointCommand_[id].vel_;
-
-
+    
     for (int i = 0; i < TOTAL_MOTORS; ++i) {
         jointCommand_[i].pos_ = motorDate_recv[i].pos_;
         jointCommand_[i].vel_ = motorDate_recv[i].vel_;
         jointCommand_[i].tau_ = motorDate_recv[i].tau_;
     }
+
+     sensor_msgs::Imu imu_copy;
+    {
+        std::lock_guard<std::mutex> lock(imu_mutex_);
+        imu_copy = yesenceIMU_;
+    }
+
+    // ROS_INFO_STREAM("Test1 !!!!");
+    imuData_.ori[0] = imu_copy.orientation.x;
+    imuData_.ori[1] = imu_copy.orientation.y;
+    imuData_.ori[2] = imu_copy.orientation.z;
+    imuData_.ori[3] = imu_copy.orientation.w;
+    imuData_.angular_vel[0] = imu_copy.angular_velocity.x;
+    imuData_.angular_vel[1] = imu_copy.angular_velocity.y;
+    imuData_.angular_vel[2] = imu_copy.angular_velocity.z;
+    imuData_.linear_acc[0]  = imu_copy.linear_acceleration.x;
+    imuData_.linear_acc[1]  = imu_copy.linear_acceleration.y;
+    imuData_.linear_acc[2]  = imu_copy.linear_acceleration.z;
+
+    mvr_robot_control::ObserveData observe_msg;
+    observe_msg.header.stamp = ros::Time::now();
+
+    observe_msg.imu_angular_vel[0] = imu_copy.angular_velocity.x;
+    observe_msg.imu_angular_vel[1] = imu_copy.angular_velocity.y;
+    observe_msg.imu_angular_vel[2] = imu_copy.angular_velocity.z;
+
+    observe_msg.commands[0] = 0.4;
+    observe_msg.commands[1] = 0.0;
+    observe_msg.commands[2] = 0.0;
+
+    observe_msg.quat_float[0] = imu_copy.orientation.x;
+    observe_msg.quat_float[1] = imu_copy.orientation.y;
+    observe_msg.quat_float[2] = imu_copy.orientation.z;
+    observe_msg.quat_float[3] = imu_copy.orientation.w;
+
+    observe_msg.joint_pos[0] = jointCommand_[0].pos_;
+    observe_msg.joint_pos[1] = jointCommand_[1].pos_;
+    observe_msg.joint_pos[2] = jointCommand_[2].pos_;
+    observe_msg.joint_pos[3] = jointCommand_[3].pos_;
+    observe_msg.joint_vel[0] = jointCommand_[0].vel_;
+    observe_msg.joint_vel[1] = jointCommand_[1].vel_;
+    observe_msg.joint_vel[2] = jointCommand_[2].vel_;
+    observe_msg.joint_vel[3] = jointCommand_[3].vel_;
+
+    observe_msg.joint_pos[6] = jointCommand_[6].pos_;
+    observe_msg.joint_pos[7] = jointCommand_[7].pos_;
+    observe_msg.joint_pos[8] = jointCommand_[8].pos_;
+    observe_msg.joint_pos[9] = jointCommand_[9].pos_;
+    observe_msg.joint_vel[6] = jointCommand_[6].vel_;
+    observe_msg.joint_vel[7] = jointCommand_[7].vel_;
+    observe_msg.joint_vel[8] = jointCommand_[8].vel_;
+    observe_msg.joint_vel[9] = jointCommand_[9].vel_;
+
+    observe_msg.joint_pos[12] = jointCommand_[12].pos_;
+    observe_msg.joint_vel[12] = jointCommand_[12].vel_;
+
+    observe_msg.joint_pos[13] = jointCommand_[17].pos_;
+    observe_msg.joint_vel[13] = jointCommand_[17].vel_;
+
+    observe_msg.joint_pos[14] = jointCommand_[13].pos_;
+    observe_msg.joint_pos[15] = jointCommand_[14].pos_;
+    observe_msg.joint_pos[16] = jointCommand_[15].pos_;
+    observe_msg.joint_pos[17] = jointCommand_[16].pos_;
+    observe_msg.joint_vel[14] = jointCommand_[13].vel_;
+    observe_msg.joint_vel[15] = jointCommand_[14].vel_;
+    observe_msg.joint_vel[16] = jointCommand_[15].vel_;
+    observe_msg.joint_vel[17] = jointCommand_[16].vel_;
+
+    observe_msg.joint_pos[18] = jointCommand_[18].pos_;
+    observe_msg.joint_pos[19] = jointCommand_[19].pos_;
+    observe_msg.joint_pos[20] = jointCommand_[20].pos_;
+    observe_msg.joint_pos[21] = jointCommand_[21].pos_;
+    observe_msg.joint_vel[18] = jointCommand_[18].vel_;
+    observe_msg.joint_vel[19] = jointCommand_[19].vel_;
+    observe_msg.joint_vel[20] = jointCommand_[20].vel_;
+    observe_msg.joint_vel[21] = jointCommand_[21].vel_;
+
+    
+
+    if (left_solver && right_solver) {
+        {
+            double tp = 0.0, tr = 0.0;
+            if (left_solver->forwardKinematics(jointCommand_[4].pos_, jointCommand_[5].pos_, tp, tr)) {
+                observe_msg.joint_pos[4] = tp;
+                observe_msg.joint_pos[5] = tr;
+
+                double tpdot = 0.0, trdot = 0.0;
+                if (left_solver->motorVelToJointVel(jointCommand_[4].pos_, jointCommand_[5].pos_,
+                                                tp, tr,
+                                                jointCommand_[4].vel_, jointCommand_[5].vel_,
+                                                tpdot, trdot)) {
+                    observe_msg.joint_vel[4] = tpdot;
+                    observe_msg.joint_vel[5] = trdot;
+                } else {
+                    ROS_WARN_STREAM("Left ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
+                }
+            } else {
+                ROS_WARN_STREAM("Left ankle FK failed. Keep observe_msg.joint_pos[4],[5] as-is.");
+            }
+        }
+
+        {
+            double tp = 0.0, tr = 0.0;
+            if (right_solver->forwardKinematics(jointCommand_[10].pos_, jointCommand_[11].pos_, tp, tr)) {
+                observe_msg.joint_pos[10] = tp;
+                observe_msg.joint_pos[11] = tr;
+
+                double tpdot = 0.0, trdot = 0.0;
+                if (right_solver->motorVelToJointVel(jointCommand_[10].pos_, jointCommand_[11].pos_,
+                                                tp, tr,
+                                                jointCommand_[10].vel_, jointCommand_[11].vel_,
+                                                tpdot, trdot)) {
+                    observe_msg.joint_vel[10] = tpdot;
+                    observe_msg.joint_vel[11] = trdot;
+                } else {
+                    ROS_WARN_STREAM("Right ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
+                }
+            } else {
+                ROS_WARN_STREAM("Right ankle FK failed. Keep observe_msg.joint_pos[10],[11] as-is.");
+            }
+        }
+    }
+
+
+    observe_pub_.publish(observe_msg);
+
+
+
+
+
+
+
+
+    // mvr_robot_control::TestData test_msg;
+    // test_msg.header.stamp = ros::Time::now();
+
 
     
     // 5Dof
@@ -299,163 +434,100 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     // }
 
 
-    // Whole Body 22dof
-    test_msg.joint_pos[0] = jointCommand_[0].pos_;
-    test_msg.joint_pos[1] = jointCommand_[1].pos_;
-    test_msg.joint_pos[2] = jointCommand_[2].pos_;
-    test_msg.joint_pos[3] = jointCommand_[3].pos_;
-    test_msg.joint_vel[0] = jointCommand_[0].vel_;
-    test_msg.joint_vel[1] = jointCommand_[1].vel_;
-    test_msg.joint_vel[2] = jointCommand_[2].vel_;
-    test_msg.joint_vel[3] = jointCommand_[3].vel_;
-
-    test_msg.joint_pos[6] = jointCommand_[6].pos_;
-    test_msg.joint_pos[7] = jointCommand_[7].pos_;
-    test_msg.joint_pos[8] = jointCommand_[8].pos_;
-    test_msg.joint_pos[9] = jointCommand_[9].pos_;
-    test_msg.joint_vel[6] = jointCommand_[6].vel_;
-    test_msg.joint_vel[7] = jointCommand_[7].vel_;
-    test_msg.joint_vel[8] = jointCommand_[8].vel_;
-    test_msg.joint_vel[9] = jointCommand_[9].vel_;
-
-    test_msg.joint_pos[12] = jointCommand_[12].pos_;
-    test_msg.joint_vel[12] = jointCommand_[12].vel_;
-
-    test_msg.joint_pos[13] = jointCommand_[17].pos_;
-    test_msg.joint_vel[13] = jointCommand_[17].vel_;
-
-    test_msg.joint_pos[14] = jointCommand_[13].pos_;
-    test_msg.joint_pos[15] = jointCommand_[14].pos_;
-    test_msg.joint_pos[16] = jointCommand_[15].pos_;
-    test_msg.joint_pos[17] = jointCommand_[16].pos_;
-    test_msg.joint_vel[14] = jointCommand_[13].vel_;
-    test_msg.joint_vel[15] = jointCommand_[14].vel_;
-    test_msg.joint_vel[16] = jointCommand_[15].vel_;
-    test_msg.joint_vel[17] = jointCommand_[16].vel_;
-
-    test_msg.joint_pos[18] = jointCommand_[18].pos_;
-    test_msg.joint_pos[19] = jointCommand_[19].pos_;
-    test_msg.joint_pos[20] = jointCommand_[20].pos_;
-    test_msg.joint_pos[21] = jointCommand_[21].pos_;
-    test_msg.joint_vel[18] = jointCommand_[18].vel_;
-    test_msg.joint_vel[19] = jointCommand_[19].vel_;
-    test_msg.joint_vel[20] = jointCommand_[20].vel_;
-    test_msg.joint_vel[21] = jointCommand_[21].vel_;
 
 
 
-    if (left_solver && right_solver) {
-        {
-            double tp = 0.0, tr = 0.0;
-            if (left_solver->forwardKinematics(jointCommand_[4].pos_, jointCommand_[5].pos_, tp, tr)) {
-                test_msg.joint_pos[4] = tp;
-                test_msg.joint_pos[5] = tr;
 
-                double tpdot = 0.0, trdot = 0.0;
-                if (left_solver->motorVelToJointVel(jointCommand_[4].pos_, jointCommand_[5].pos_,
-                                                tp, tr,
-                                                jointCommand_[4].vel_, jointCommand_[5].vel_,
-                                                tpdot, trdot)) {
-                    test_msg.joint_vel[4] = tpdot;
-                    test_msg.joint_vel[5] = trdot;
-                } else {
-                    ROS_WARN_STREAM("Left ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
-                }
-            } else {
-                ROS_WARN_STREAM("Left ankle FK failed. Keep test_msg.joint_pos[4],[5] as-is.");
-            }
-        }
 
-        {
-            double tp = 0.0, tr = 0.0;
-            if (right_solver->forwardKinematics(jointCommand_[10].pos_, jointCommand_[11].pos_, tp, tr)) {
-                test_msg.joint_pos[10] = tp;
-                test_msg.joint_pos[11] = tr;
 
-                double tpdot = 0.0, trdot = 0.0;
-                if (right_solver->motorVelToJointVel(jointCommand_[10].pos_, jointCommand_[11].pos_,
-                                                tp, tr,
-                                                jointCommand_[10].vel_, jointCommand_[11].vel_,
-                                                tpdot, trdot)) {
-                    test_msg.joint_vel[10] = tpdot;
-                    test_msg.joint_vel[11] = trdot;
-                } else {
-                    ROS_WARN_STREAM("Right ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
-                }
-            } else {
-                ROS_WARN_STREAM("Right ankle FK failed. Keep test_msg.joint_pos[10],[11] as-is.");
-            }
-        }
-    }
+
+
+
+
+    
 
     // Whole Body 20dof
-    // test_msg.joint_pos[0] = jointCommand_[0].pos_;
-    // test_msg.joint_pos[1] = jointCommand_[1].pos_;
-    // test_msg.joint_pos[2] = jointCommand_[2].pos_;
-    // test_msg.joint_pos[3] = jointCommand_[3].pos_;
-    // test_msg.joint_vel[0] = jointCommand_[0].vel_;
-    // test_msg.joint_vel[1] = jointCommand_[1].vel_;
-    // test_msg.joint_vel[2] = jointCommand_[2].vel_;
-    // test_msg.joint_vel[3] = jointCommand_[3].vel_;
 
-    // test_msg.joint_pos[5] = jointCommand_[6].pos_;
-    // test_msg.joint_pos[6] = jointCommand_[7].pos_;
-    // test_msg.joint_pos[7] = jointCommand_[8].pos_;
-    // test_msg.joint_pos[8] = jointCommand_[9].pos_;
-    // test_msg.joint_vel[5] = jointCommand_[6].vel_;
-    // test_msg.joint_vel[6] = jointCommand_[7].vel_;
-    // test_msg.joint_vel[7] = jointCommand_[8].vel_;
-    // test_msg.joint_vel[8] = jointCommand_[9].vel_;
+    // observe_msg.joint_pos[0] = jointCommand_[0].pos_;
+    // observe_msg.joint_pos[1] = jointCommand_[1].pos_;
+    // observe_msg.joint_pos[2] = jointCommand_[2].pos_;
+    // observe_msg.joint_pos[3] = jointCommand_[3].pos_;
+    // observe_msg.joint_vel[0] = jointCommand_[0].vel_;
+    // observe_msg.joint_vel[1] = jointCommand_[1].vel_;
+    // observe_msg.joint_vel[2] = jointCommand_[2].vel_;
+    // observe_msg.joint_vel[3] = jointCommand_[3].vel_;
 
-    // for (int msg_idx = 10; msg_idx <= 19; ++msg_idx) {
-    //     const int motor_id = msg_idx + 2; // 10->12 ... 19->21
-    //     test_msg.joint_pos[msg_idx] = jointCommand_[motor_id].pos_;
-    //     test_msg.joint_vel[msg_idx] = jointCommand_[motor_id].vel_;
-    // }
+    // observe_msg.joint_pos[5] = jointCommand_[6].pos_;
+    // observe_msg.joint_pos[6] = jointCommand_[7].pos_;
+    // observe_msg.joint_pos[7] = jointCommand_[8].pos_;
+    // observe_msg.joint_pos[8] = jointCommand_[9].pos_;
+    // observe_msg.joint_vel[5] = jointCommand_[6].vel_;
+    // observe_msg.joint_vel[6] = jointCommand_[7].vel_;
+    // observe_msg.joint_vel[7] = jointCommand_[8].vel_;
+    // observe_msg.joint_vel[8] = jointCommand_[9].vel_;
 
+    
     // if (left_solver && right_solver) {
     //     {
     //         double tp = 0.0, tr = 0.0;
     //         if (left_solver->forwardKinematics(jointCommand_[4].pos_, jointCommand_[5].pos_, tp, tr)) {
-    //             test_msg.joint_pos[4] = tp;
-    //             // test_msg.joint_pos[5] = tr;
+    //             observe_msg.joint_pos[4] = tp;
+    //             // observe_msg.joint_pos[5] = tr;
 
     //             double tpdot = 0.0, trdot = 0.0;
     //             if (left_solver->motorVelToJointVel(jointCommand_[4].pos_, jointCommand_[5].pos_,
     //                                             tp, tr,
     //                                             jointCommand_[4].vel_, jointCommand_[5].vel_,
     //                                             tpdot, trdot)) {
-    //                 test_msg.joint_vel[4] = tpdot;
-    //                 // test_msg.joint_vel[5] = trdot;
+    //                 observe_msg.joint_vel[4] = tpdot;
+    //                 // observe_msg.joint_vel[5] = trdot;
     //             } else {
     //                 ROS_WARN_STREAM("Left ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
     //             }
     //         } else {
-    //             ROS_WARN_STREAM("Left ankle FK failed. Keep test_msg.joint_pos[4],[5] as-is.");
+    //             ROS_WARN_STREAM("Left ankle FK failed. Keep observe_msg.joint_pos[4],[5] as-is.");
     //         }
     //     }
 
     //     {
     //         double tp = 0.0, tr = 0.0;
     //         if (right_solver->forwardKinematics(jointCommand_[10].pos_, jointCommand_[11].pos_, tp, tr)) {
-    //             test_msg.joint_pos[9] = tp;
-    //             // test_msg.joint_pos[10] = tr;
+    //             observe_msg.joint_pos[9] = tp;
+    //             // observe_msg.joint_pos[10] = tr;
 
     //             double tpdot = 0.0, trdot = 0.0;
     //             if (right_solver->motorVelToJointVel(jointCommand_[10].pos_, jointCommand_[11].pos_,
     //                                             tp, tr,
     //                                             jointCommand_[10].vel_, jointCommand_[11].vel_,
     //                                             tpdot, trdot)) {
-    //                 test_msg.joint_vel[9] = tpdot;
-    //                 // test_msg.joint_vel[10] = trdot;
+    //                 observe_msg.joint_vel[9] = tpdot;
+    //                 // observe_msg.joint_vel[10] = trdot;
     //             } else {
     //                 ROS_WARN_STREAM("Right ankle velocity mapping failed. Keep joint_vel[4],[5] as motor vel.");
     //             }
     //         } else {
-    //             ROS_WARN_STREAM("Right ankle FK failed. Keep test_msg.joint_pos[10],[11] as-is.");
+    //             ROS_WARN_STREAM("Right ankle FK failed. Keep observe_msg.joint_pos[10],[11] as-is.");
     //         }
     //     }
     // }
+
+    // observe_pub_.publish(observe_msg);
+
+
+
+
+
+
+
+
+
+
+    // for (int msg_idx = 10; msg_idx <= 19; ++msg_idx) {
+    //     const int motor_id = msg_idx + 2; // 10->12 ... 19->21
+    //     observe_msg.joint_pos[msg_idx] = jointCommand_[motor_id].pos_;
+    //     observe_msg.joint_vel[msg_idx] = jointCommand_[motor_id].vel_;
+    // }
+
 
     // ankle
     // if (left_solver && right_solver) {
@@ -503,30 +575,11 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     // }
 
 
-    if(!emergencyStopFlag_) {
-        observe_pub_.publish(test_msg);
-    } else {
-        ROS_WARN_STREAM_THROTTLE(1.0, "[BotHW] emergencyStopFlag_=true, stop publishing /observe_data");
-    }
-    
-
-    sensor_msgs::Imu imu_copy;
-    {
-        std::lock_guard<std::mutex> lock(imu_mutex_);
-        imu_copy = yesenceIMU_;
-    }
-
-    // ROS_INFO_STREAM("Test1 !!!!");
-    imuData_.ori[0] = imu_copy.orientation.x;
-    imuData_.ori[1] = imu_copy.orientation.y;
-    imuData_.ori[2] = imu_copy.orientation.z;
-    imuData_.ori[3] = imu_copy.orientation.w;
-    imuData_.angular_vel[0] = imu_copy.angular_velocity.x;
-    imuData_.angular_vel[1] = imu_copy.angular_velocity.y;
-    imuData_.angular_vel[2] = imu_copy.angular_velocity.z;
-    imuData_.linear_acc[0]  = imu_copy.linear_acceleration.x;
-    imuData_.linear_acc[1]  = imu_copy.linear_acceleration.y;
-    imuData_.linear_acc[2]  = imu_copy.linear_acceleration.z;
+    // if(!emergencyStopFlag_) {
+    //     observe_pub_.publish(test_msg);
+    // } else {
+    //     ROS_WARN_STREAM_THROTTLE(1.0, "[BotHW] emergencyStopFlag_=true, stop publishing /observe_data");
+    // }
 
 
     // SINGLE MOTOR
@@ -559,23 +612,29 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     // }
 
 
-    for(int motor_id : motor_ids) {
-        ROS_INFO_STREAM("Torque from Current " <<motor_id<< ": ");
-        ROS_INFO_STREAM(" "<< std::abs(motorDate_recv[motor_id].current_));
 
-        double pos_des   = jointCommand_[motor_id].pos_des_;
-        double pos_now   = jointCommand_[motor_id].pos_;
-        double vel_now   = jointCommand_[motor_id].vel_;
 
-        double pos_err = pos_des - pos_now;
-        double torque_kp = joint_kps_[motor_id] * pos_err;
-        double torque_kd = joint_kds_[motor_id] * vel_now;
-        double torque_pd   = torque_kp - torque_kd;
 
-        ROS_INFO_STREAM("Torque from PD formula " <<motor_id<< ": ");
-        ROS_INFO_STREAM("torque kp :" << torque_kp << "  torque kd :" << torque_kd);
-        ROS_INFO_STREAM("torque pd :" << torque_pd);
-    }
+    // for(int motor_id : motor_ids) {
+    //     ROS_INFO_STREAM("Torque from Current " <<motor_id<< ": ");
+    //     ROS_INFO_STREAM(" "<< std::abs(motorDate_recv[motor_id].current_));
+
+    //     double pos_des   = jointCommand_[motor_id].pos_des_;
+    //     double pos_now   = jointCommand_[motor_id].pos_;
+    //     double vel_now   = jointCommand_[motor_id].vel_;
+
+    //     double pos_err = pos_des - pos_now;
+    //     double torque_kp = joint_kps_[motor_id] * pos_err;
+    //     double torque_kd = joint_kds_[motor_id] * vel_now;
+    //     double torque_pd   = torque_kp - torque_kd;
+
+    //     ROS_INFO_STREAM("Torque from PD formula " <<motor_id<< ": ");
+    //     ROS_INFO_STREAM("torque kp :" << torque_kp << "  torque kd :" << torque_kd);
+    //     ROS_INFO_STREAM("torque pd :" << torque_pd);
+    // }
+
+
+
 
     // ROS_INFO_STREAM("Torque from Current " <<12<< ": ");
     // ROS_INFO_STREAM(" "<< std::abs(motorDate_recv[12].current_));
@@ -592,29 +651,6 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     // ROS_INFO_STREAM("Torque from PD formula " <<12<< ": ");
     // ROS_INFO_STREAM("torque kp :" << torque_kp << "  torque kd :" << torque_kd);
     // ROS_INFO_STREAM("torque pd :" << torque_pd);
-
-
-
-    // mvr_robot_control::ObserveData observe_msg;
-    // observe_msg.header.stamp = ros::Time::now();
-
-    // observe_msg.imu_angular_vel[0] = imu_copy.angular_velocity.x;
-    // observe_msg.imu_angular_vel[1] = imu_copy.angular_velocity.y;
-    // observe_msg.imu_angular_vel[2] = imu_copy.angular_velocity.z;
-
-    // observe_msg.joint_pos[0] = jointCommand_[id].pos_;
-    // observe_msg.joint_vel[0] = jointCommand_[id].vel_;
-
-    // observe_msg.commands[0] = 0.0;
-    // observe_msg.commands[1] = 0.0;
-    // observe_msg.commands[2] = 0.0;
-
-    // observe_msg.quat_float[0] = imu_copy.orientation.x;
-    // observe_msg.quat_float[1] = imu_copy.orientation.y;
-    // observe_msg.quat_float[2] = imu_copy.orientation.z;
-    // observe_msg.quat_float[3] = imu_copy.orientation.w;
-
-    // observe_pub_.publish(observe_msg);
 
     // ROS_INFO_STREAM("ObserveData: ");
     // ROS_INFO_STREAM("Joint positions: ");
@@ -739,7 +775,7 @@ void BotHW::write(ros::Time time, ros::Duration period) {
         mvrSendcmd_[motor_id].ff_ = 0.0;  
     }
 
-    EtherCAT_Send_Command_New(mvrSendcmd_);
+    EtherCAT_Send_Command_New((YKSMotorData*)mvrSendcmd_);
 }
 
 void BotHW::odomCallback(const sensor_msgs::Imu::ConstPtr &odom) {
@@ -799,6 +835,24 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
     //     ROS_INFO_STREAM("motor_id " << motor_id << " <= target[" << i << "] = " << target12[i]);
     // }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Whole Body 22Dof
     if (!(left_solver && right_solver)) {
         ROS_ERROR_STREAM("MechanismSolver not initialized.");
@@ -855,7 +909,17 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
     jointCommand_[20].pos_des_ = msg->joint_pos[20];
     jointCommand_[21].pos_des_ = msg->joint_pos[21];
 
-    // Whole Body 20dof
+
+
+
+
+
+
+
+
+
+
+    // Whole Body 10dof
     // if (!(left_solver && right_solver)) {
     //     ROS_ERROR_STREAM("MechanismSolver not initialized.");
     //     return;
@@ -896,6 +960,15 @@ void BotHW::commandCallback(const mvr_robot_control::ActionData::ConstPtr& msg) 
     //         ROS_WARN_STREAM("Right ankle IK failed (tp=" << theta_p << ", tr=" << theta_r << "). Keep previous commands.");
     //     }
     // }
+
+
+
+
+
+
+
+
+
 
     // for (int msg_idx = 10; msg_idx <= 19; ++msg_idx) {
     //     const int motor_id = msg_idx + 2; // 10->12, ..., 19->21

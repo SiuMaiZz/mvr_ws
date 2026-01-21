@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+    #!/usr/bin/env python3
 
 import os
 import torch
@@ -14,22 +14,12 @@ class ROSNode:
     def __init__(self):
         rospy.init_node('rl_model_command')
 
-        self.motor_nums = 22
+        self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_22dof_v9.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_lstm_10dof_v3.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
 
-        
-
-# obs_buf = torch.cat((
-#             self.command_input,  # 5 = 2D(sin cos) + 3D(vel_x, vel_y, aug_vel_yaw)
-#             q,    # 22
-#             dq,  # 22
-#             self.actions,   # 22
-#             self.base_ang_vel * self.obs_scales.ang_vel,  # 3
-#             self.base_euler_xyz * self.obs_scales.quat,  # 3
-#         ), dim=-1)   
         self.history_buffer = np.zeros((1, self.motor_nums * 3 + 11), dtype=np.float32)
         # print(self.history_buffer.shape, 'A')
         self.buffer_ptr = 0
@@ -43,7 +33,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_1_22dof_v9.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_lstm_10dof_v3.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -84,7 +74,7 @@ class ROSNode:
         self.obs_scales = {
             'dof_pos': 1,
             'dof_vel': 0.05,
-            'ang_vel': 1,
+            'ang_vel': 0.25,
             'lin_vel': 2,
             'quat': 1,
         }
@@ -98,11 +88,8 @@ class ROSNode:
         # ], dtype=np.float32)
 
         self.default_pos = np.array([
-            -0.25, -0.03, -0.01, -0.5,  0.15, -0.01,
-            0.25,   0.03, 0.01,  0.5, -0.15,  0.01,
-            0.0, 0.0, 
-            0.0, 0.0, 0.0, -1.0,
-            0.0, 0.0, 0.0,  1.0
+            -0.25, -0.03, -0.01, -0.5,  0.15, 
+            0.25,   0.03, 0.01,  0.5,  -0.15
         ], dtype=np.float32)
 
         self.smoothed_joint_pos = np.array(self.default_pos, dtype=np.float32)  # 初始平滑值设置为默认关节位置
@@ -155,12 +142,6 @@ class ROSNode:
     
     def get_base_heading(quaternion):
         x, y, z, w = quaternion
-
-        # Formula to convert quaternion to yaw (z-axis rotation)
-        # This corresponds to rotating the forward vector [1, 0, 0] and taking atan2(y, x)
-        # y_rotated = 2 * (w * z + x * y)
-        # x_rotated = 1 - 2 * (y**2 + z**2)
-
         heading = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y ** 2 + z ** 2))
         return heading
 
@@ -183,30 +164,17 @@ class ROSNode:
         sin_pos = np.sin(2 * np.pi * phase)
         cos_pos = np.cos(2 * np.pi * phase)
 
-        # obs = np.concatenate([
-        #     np.array([sin_pos, cos_pos], dtype=np.float32),
-        #     np.array(commands, dtype=np.float32),
-        #     np.array(joint_pos - self.default_pos, dtype=np.float32),
-        #     np.array(joint_vel, dtype=np.float32),
-        #     np.array(self.last_action, dtype=np.float32),
-        #     np.array(ang_vel, dtype=np.float32),
-        #     # np.array(gravity_orientation, dtype=np.float32)
-        # ])
 
         obs = np.concatenate([
-            np.array([sin_pos, cos_pos], dtype=np.float32),
+            np.array(ang_vel, dtype=np.float32),
+            np.array(gravity_orientation, dtype=np.float32),
             np.array(commands, dtype=np.float32),
             np.array(joint_pos - self.default_pos, dtype=np.float32),
             np.array(joint_vel, dtype=np.float32),
             np.array(self.last_action, dtype=np.float32),
-            np.array(ang_vel, dtype=np.float32),
-            np.array(gravity_orientation, dtype=np.float32)
+            np.array([sin_pos, cos_pos], dtype=np.float32),
+            
         ])
-
-        # print(obs.shape)
-        # print(joint_pos.shape)
-        # print(joint_vel.shape)
-        
 
         self.obs_raw = obs.flatten()
         # print(obs.shape)
@@ -215,94 +183,26 @@ class ROSNode:
         
         obs_buf = self.history_buffer.reshape(1,-1)
 
-        # rospy.loginfo(f"Joint Positions (joint_pos): {joint_pos}")
-        # rospy.loginfo(f"Quaternion (quat): {quat}")
-        # rospy.loginfo(f"Euler Angles (euler_angles): {euler_angles}")
-        # rospy.loginfo(f"Angular Velocities (ang_vel): {ang_vel}")
 
         return obs_buf
 
-    # def compute_obs(self, msg):
-
-
-    #     joint_pos = np.array(msg.joint_pos, dtype=np.float32) * self.obs_scales['dof_pos']
-    #     joint_vel = np.array(msg.joint_vel, dtype=np.float32) * self.obs_scales['dof_vel']
-    #     # euler_angles = np.array(msg.quat_float, dtype=np.float32) * self.obs_scales['quat']
-        
-    #     # quat = np.array(msg.quat_float, dtype=np.float32)
-    #     # r = R.from_quat(quat)
-    #     # euler_angles = r.as_euler('xyz') * self.obs_scales['quat']
-    #     # commands = np.array(msg.commands, dtype=np.float32)
-    #     # ang_vel = np.array(msg.imu_angular_vel) * self.obs_scales['ang_vel']
-
-    #     # phase = self._get_phase()
-    #     # self.phase_raw = phase
-    #     # sin_pos = np.sin(2 * np.pi * phase)
-    #     # cos_pos = np.cos(2 * np.pi * phase)
-
-    #     phase = self.phase_signal()
-
-    #     # obs = np.concatenate([
-    #     #     np.array([sin_pos, cos_pos], dtype=np.float32),
-    #     #     # np.array(commands, dtype=np.float32),
-    #     #     np.array(joint_pos - self.default_pos, dtype=np.float32),
-    #     #     np.array(joint_vel, dtype=np.float32),
-    #     #     np.array(self.last_action, dtype=np.float32),
-    #     #     # np.array(ang_vel, dtype=np.float32),
-    #     #     # np.array(euler_angles, dtype=np.float32)
-    #     # ])
-
-    #     obs = np.concatenate([
-    #         np.array(joint_pos - self.default_pos, dtype=np.float32),
-    #         np.array(joint_vel, dtype=np.float32),
-    #         np.array(self.last_action, dtype=np.float32),
-    #         np.array(phase, dtype=np.float32)
-    #     ])
-
-    #     # print(obs.shape)
-    #     # print(joint_pos.shape)
-    #     # print(joint_vel.shape)
-        
-
-    #     self.obs_raw = obs.flatten()
-    #     # print(obs.shape)
-    #     self.history_buffer[self.buffer_ptr] = obs
-    #     self.buffer_ptr = (self.buffer_ptr + 1) % 1
-        
-    #     obs_buf = self.history_buffer.reshape(1,-1)
-
-    #     rospy.loginfo(f"Joint Positions (joint_pos): {joint_pos}")
-    #     # rospy.loginfo(f"Quaternion (quat): {quat}")
-    #     # rospy.loginfo(f"Euler Angles (euler_angles): {euler_angles}")
-    #     # rospy.loginfo(f"Angular Velocities (ang_vel): {ang_vel}")
-
-    #     return obs_buf
     
-# clip_actions = self.cfg.normalization.clip_actions
-#         self.actions = torch.clip(actions, -clip_actions, clip_actions).to(self.device)
-# actions_scaled = actions * self.cfg.control.action_scale
-# action_scale = 0.25
-# clip_actions = 18.
 
     def callback(self, msg):
-        # stop_step = 400
-
-        # if self.count >= stop_step:
-        #     rospy.loginfo("Stopping publishing!")
-        #     return
-    
         decimation = 10
 
         if self.count % decimation != 0:
             obs = self.compute_obs(msg)
-            obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
+            obs_tensor = torch.FloatTensor(obs).to(self.device)
+            print(obs_tensor.shape)
             action_scale = 0.25
             clip_actions = 18
 
             with torch.no_grad():
                 action = self.model(obs_tensor)
 
-            self.last_action = action.cpu().numpy().flatten()
+            self.last_action = action.cpu().numpy()[0]
+            print(self.last_action.shape)
 
             action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
             self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
@@ -338,68 +238,10 @@ class ROSNode:
 
             self.pub.publish(self.action_msg)
 
-            # rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
+            rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
 
         self.count += 1
 
-        
-        # if self.count % decimation == 0:
-        #     obs = self.compute_obs(msg)
-        #     obs_tensor = torch.FloatTensor(obs).to(self.device).unsqueeze(0)
-        #     # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!", obs_tensor.shape)
-        #     action_scale = 0.25
-        #     clip_actions = 18
-
-        #     with torch.no_grad(): 
-        #         action = self.model(obs_tensor)
-
-        #     self.last_action = action.cpu().numpy().flatten()
-
-        #     action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
-        #     self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
-
-
-        #     action_scaled = action * action_scale
-        #     action = action_scaled.cpu().numpy().flatten().astype(np.float32)
-        #     self.action = action
-
-        #     joint_pos_np = self.default_pos[:self.motor_nums] + action[:self.motor_nums]
-        #     # joint_pos = joint_pos_np.astype(np.float32).tolist()
-
-        #     # smoothed_joint_pos_np = self.smooth_alpha * joint_pos_np + (1 - self.smooth_alpha) * self.smoothed_joint_pos
-        #     # self.smoothed_joint_pos = smoothed_joint_pos_np  # 更新平滑值
-        #     # joint_pos = smoothed_joint_pos_np.astype(np.float32).tolist()
-
-        #     self.last_three_joint_pos[2] = self.last_three_joint_pos[1]
-        #     self.last_three_joint_pos[1] = self.last_three_joint_pos[0]
-        #     self.last_three_joint_pos[0] = joint_pos_np
-
-        #     smoothed_joint_pos_np = np.average(self.last_three_joint_pos, axis=0, weights=self.smooth_weights)
-        #     self.smoothed_joint_pos = smoothed_joint_pos_np
-        #     joint_pos = smoothed_joint_pos_np.astype(np.float32).tolist()
-
-
-        #     # lo, hi = -0.1, 0.1
-        #     # start_idx, end_idx = 12, 21
-        #     # if len(joint_pos) > start_idx:
-        #     #     end = min(end_idx, len(joint_pos) - 1)
-        #     #     for i in range(start_idx, end + 1):
-        #     #         if lo <= joint_pos[i] <= hi:
-        #     #             joint_pos[i] = 0.0
-        #     # if len(joint_pos) < 1:
-        #     #     joint_pos.extend([0] * (1 - len(joint_pos)))
-
-        #     self.action_msg = ActionData()
-        #     self.action_msg.joint_pos = joint_pos
-
-        #     self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.action, joint_pos])
-
-        # self.pub.publish(self.action_msg)
-        
-        # rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
-            
-
-        self.count += 1
 
         
 
