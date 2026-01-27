@@ -1,13 +1,13 @@
 //-----------------------------------------------------------------------------
-// File: HunterHW.h
+// File: BotHW_10dof.h
 // Author: Akisora
-// Created: 2026-01-19
+// Created: 2026-01-22
 //-----------------------------------------------------------------------------
 
 #ifndef BOT_HW_H
 #define BOT_HW_H
 
-#define TOTAL_MOTORS_HUNTER 10
+#define TOTAL_MOTORS 22
 
 #include <hardware_interface/robot_hw.h>
 #include <hardware_interface/joint_command_interface.h>
@@ -17,6 +17,7 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 #include "command.h"
 #include "transmit.h"
+#include "mvr_robot_control/MechanismSolver.h"
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <mvr_robot_control/ObserveData_10dof.h>
@@ -67,12 +68,12 @@ private:
     std::vector<double> joint_kps_;
     std::vector<double> joint_kds_;
     
-    MotorData jointCommand_[TOTAL_MOTORS_HUNTER]{};
+    MotorData jointCommand_[TOTAL_MOTORS]{};
 
     ImuData imuData_{};
 
-    YKSMotorData mvrSendcmd_[TOTAL_MOTORS_HUNTER];
-    // YKSMotorData mvrSendDefaultcmd_[TOTAL_MOTORS_HUNTER];
+    YKSMotorData mvrSendcmd_[TOTAL_MOTORS];
+    // YKSMotorData mvrSendDefaultcmd_[TOTAL_MOTORS];
 
     sensor_msgs::Imu yesenceIMU_;
     ros::Subscriber imu_sub_;
@@ -81,10 +82,17 @@ private:
     std::mutex imu_mutex_;
     std::mutex cmd_mutex_;
 
+    std::unique_ptr<MechanismSolver> left_solver;
+    std::unique_ptr<MechanismSolver> right_solver;
+
     void odomCallback(const sensor_msgs::Imu::ConstPtr &odom);
     void commandCallback(const mvr_robot_control::ActionData_10dof::ConstPtr &msg);
     bool smoothStartupToDefault(double ramp_duration_sec, int warmup_frames, double hz);
 
+    const double l1 = 47.5;
+    const double d1 = 26.0;
+    const double h1 = 213.0;
+    const double h2 = 149.0;
 };
 
 

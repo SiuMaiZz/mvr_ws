@@ -1,0 +1,12 @@
+<launch>
+  <rosparam file="$(find mvr_robot_control)/config/default_positions.yaml" command="load" />
+  <rosparam file="$(find mvr_robot_control)/config/joint_limits.yaml" command="load" />
+  <rosparam file="$(find mvr_robot_control)/config/joint_pds_10dof.yaml" command="load" />
+
+  <node name="bot_hw_10dof_node" pkg="mvr_robot_control" type="mvr_robot_control_10dof" output="screen">
+    <param name="loop_frequency" value="100.0" />
+    <param name="cycle_time_error_threshold" value="0.01" />
+  </node>
+
+  <include file="$(find yesense_imu)/launch/run_without_rviz.launch" />
+</launch>

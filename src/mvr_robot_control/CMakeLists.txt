@@ -32,6 +32,8 @@ add_message_files(
   ActionData.msg
   ObserveData.msg
   TestData.msg
+  ActionData_10dof.msg
+  ObserveData_10dof.msg
 )
 
 generate_messages(
@@ -99,6 +101,15 @@ add_executable(mvr_robot_control
 )
 # 注意：这里添加了 ${catkin_LIBRARIES} 以确保链接到 ROS 库
 target_link_libraries(mvr_robot_control
+  soem motor ${catkin_LIBRARIES}
+)
+
+add_executable(mvr_robot_control_10dof
+  src/BotHW_10dof.cpp
+  src/BotControlLoop_10dof.cpp
+  src/MechanismSolver.cpp
+)
+target_link_libraries(mvr_robot_control_10dof
   soem motor ${catkin_LIBRARIES}
 )
 

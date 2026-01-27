@@ -306,7 +306,7 @@ void BotHW::read(ros::Time time, ros::Duration period) {
     observe_msg.imu_angular_vel[1] = imu_copy.angular_velocity.y;
     observe_msg.imu_angular_vel[2] = imu_copy.angular_velocity.z;
 
-    observe_msg.commands[0] = 0.4;
+    observe_msg.commands[0] = 0.2;
     observe_msg.commands[1] = 0.0;
     observe_msg.commands[2] = 0.0;
 

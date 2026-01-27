@@ -6,7 +6,7 @@ import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
 import csv
-from mvr_robot_control.msg import ObserveData, ActionData, TestData
+from mvr_robot_control.msg import ObserveData_10dof, ActionData_10dof
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
 
@@ -16,7 +16,7 @@ class ROSNode:
 
         self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_HG_v1.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_HG_v2.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
 
@@ -33,7 +33,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_HG_v1.pt')
+        model_relative_path = os.path.join('..', 'model', 'policy_HG_v2.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -53,8 +53,8 @@ class ROSNode:
         self.model.to(self.device)
         rospy.loginfo(f"Using device: {self.device}")
         
-        self.sub = rospy.Subscriber('/observe_data', ObserveData, self.callback)
-        self.pub = rospy.Publisher('/control_cmd', ActionData, queue_size=1)
+        self.sub = rospy.Subscriber('/observe_data', ObserveData_10dof, self.callback)
+        self.pub = rospy.Publisher('/control_cmd', ActionData_10dof, queue_size=1)
 
         self.count = 0
 
@@ -158,7 +158,7 @@ class ROSNode:
         
         
         quat = np.array(msg.quat_float, dtype=np.float32)
-        
+
         euler = self.quaternion_to_euler_array(quat)
         euler[euler > np.pi] -= 2 * np.pi
         # r = R.from_quat(quat)
@@ -237,7 +237,7 @@ class ROSNode:
         if self.count % decimation == 0:
             joint_pos = self.temp_joint_pos.astype(np.float32).tolist()
 
-            self.action_msg = ActionData()
+            self.action_msg = ActionData_10dof()
             self.action_msg.joint_pos = joint_pos
 
             # 写入 CSV

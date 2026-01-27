@@ -6,7 +6,7 @@ import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
 import csv
-from mvr_robot_control.msg import ObserveData, ActionData, TestData
+from mvr_robot_control.msg import ObserveData_10dof, ActionData_10dof
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
 
@@ -53,8 +53,8 @@ class ROSNode:
         self.model.to(self.device)
         rospy.loginfo(f"Using device: {self.device}")
         
-        self.sub = rospy.Subscriber('/observe_data', ObserveData, self.callback)
-        self.pub = rospy.Publisher('/control_cmd', ActionData, queue_size=1)
+        self.sub = rospy.Subscriber('/observe_data', ObserveData_10dof, self.callback)
+        self.pub = rospy.Publisher('/control_cmd', ActionData_10dof, queue_size=1)
 
         self.count = 0
 
@@ -91,12 +91,6 @@ class ROSNode:
             -0.25, -0.03, -0.01, -0.5,  0.15, 
             0.25,   0.03, 0.01,  0.5,  -0.15
         ], dtype=np.float32)
-
-        self.smoothed_joint_pos = np.array(self.default_pos, dtype=np.float32)  # 初始平滑值设置为默认关节位置
-        self.smooth_alpha = 0.3  # 平滑系数，可以根据需求调整
-
-        self.last_three_joint_pos = np.zeros((3, self.motor_nums), dtype=np.float32)
-        self.smooth_weights = np.array([0.3, 0.4, 0.3])  
 
         self.last_five_joint_pos = np.zeros((5, self.motor_nums), dtype=np.float32)
         self.smooth_weights = np.array([0.2, 0.2, 0.2, 0.2, 0.2]) 
@@ -230,7 +224,7 @@ class ROSNode:
         if self.count % decimation == 0:
             joint_pos = self.temp_joint_pos.astype(np.float32).tolist()
 
-            self.action_msg = ActionData()
+            self.action_msg = ActionData_10dof()
             self.action_msg.joint_pos = joint_pos
 
             # 写入 CSV

@@ -6,7 +6,7 @@ import torch.nn as nn # type: ignore
 import rospy
 import numpy as np
 import csv
-from mvr_robot_control.msg import ObserveData, ActionData, TestData
+from mvr_robot_control.msg import ObserveData_10dof, ActionData_10dof
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation as R
 
@@ -53,8 +53,8 @@ class ROSNode:
         self.model.to(self.device)
         rospy.loginfo(f"Using device: {self.device}")
         
-        self.sub = rospy.Subscriber('/observe_data', ObserveData, self.callback)
-        self.pub = rospy.Publisher('/control_cmd', ActionData, queue_size=1)
+        self.sub = rospy.Subscriber('/observe_data', ObserveData_10dof, self.callback)
+        self.pub = rospy.Publisher('/control_cmd', ActionData_10dof, queue_size=1)
 
         self.count = 0
 
@@ -172,7 +172,7 @@ class ROSNode:
             np.array(joint_pos - self.default_pos, dtype=np.float32),
             np.array(joint_vel, dtype=np.float32),
             np.array(self.last_action, dtype=np.float32),
-            np.array([sin_pos, cos_pos], dtype=np.float32),
+            # np.array([sin_pos, cos_pos], dtype=np.float32),
             
         ])
 
@@ -230,7 +230,7 @@ class ROSNode:
         if self.count % decimation == 0:
             joint_pos = self.temp_joint_pos.astype(np.float32).tolist()
 
-            self.action_msg = ActionData()
+            self.action_msg = ActionData_10dof()
             self.action_msg.joint_pos = joint_pos
 
             # 写入 CSV
