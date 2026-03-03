@@ -6,7 +6,24 @@
   <node name="bot_hw_node" pkg="mvr_robot_control" type="mvr_robot_control" output="screen">
     <param name="loop_frequency" value="100.0" />
     <param name="cycle_time_error_threshold" value="0.01" />
+    
+    <rosparam file="$(find mvr_robot_control)/config/joint_names.yaml" command="load"/>
+
+    <param name="publish_rate" value="200"/>
+    <param name="base_height_guess" value="0.62"/>
+    <param name="quat_xyzw" value="true"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_frame" value="base_link"/>
+    <param name="publish_tf" value="true"/>
+    <param name="publish_odom" value="true"/>
   </node>
 
+  <param name="robot_description" textfile="$(find mvr_robot_control)/urdf/v47_inertia_v3all.urdf"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
   <include file="$(find yesense_imu)/launch/run_without_rviz.launch" />
+
+  <node pkg="rviz" type="rviz" name="rviz">
+    <param name="config" value="$(find mvr_robot_control)/config/default.rviz"/>
+  </node>
 </launch>

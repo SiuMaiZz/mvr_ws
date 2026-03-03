@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------------
 
 #include "mvr_robot_control/BotHW.h"
+#include "mvr_robot_control/StateVizPublisher.h"
 #include <ros/ros.h>
 #include <controller_manager/controller_manager.h>
 #include <memory>
@@ -96,6 +97,8 @@ int main(int argc, char** argv)
         ROS_FATAL("Failed to initialize BotHW.");
         return 1;
     }
+
+    mvr_robot_control::state_estimation::StateVizPublisher viz(nh);
 
     BotControlLoop control_loop(nh, bot_hw);
     control_loop.run();

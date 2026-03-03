@@ -765,8 +765,16 @@ void BotHW::write(ros::Time time, ros::Duration period) {
     for (int motor_id = 0; motor_id < TOTAL_MOTORS; ++motor_id) {
         double desired_pos = jointCommand_[motor_id].pos_des_;
         
-        desired_pos = std::max(joint_limits_[motor_id].min_position, desired_pos);
-        desired_pos = std::min(joint_limits_[motor_id].max_position, desired_pos);
+        if (desired_pos < joint_limits_[motor_id].min_position) {
+            ROS_WARN("Motor %d: Desired position (%.2f) is below the minimum limit (%.2f). Adjusting to min limit.",
+                     motor_id, desired_pos, joint_limits_[motor_id].min_position);
+            desired_pos = joint_limits_[motor_id].min_position;
+        }
+        if (desired_pos > joint_limits_[motor_id].max_position) {
+            ROS_WARN("Motor %d: Desired position (%.2f) exceeds the maximum limit (%.2f). Adjusting to max limit.",
+                     motor_id, desired_pos, joint_limits_[motor_id].max_position);
+            desired_pos = joint_limits_[motor_id].max_position;
+        }
 
         mvrSendcmd_[motor_id].pos_des_ = desired_pos;
         mvrSendcmd_[motor_id].vel_des_ = 0.0; 

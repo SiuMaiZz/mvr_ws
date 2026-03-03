@@ -16,7 +16,7 @@ class ROSNode:
 
         self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_HG_v2.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_HG_v5.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
 
@@ -33,7 +33,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_HG_v2.pt')
+        model_relative_path = os.path.join('..', 'model', 'humanoid-gym/policies_V47_10_Jan26_09-58-29_/policy_1.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -208,7 +208,7 @@ class ROSNode:
             with torch.no_grad():
                 action = self.model(obs_tensor)
 
-            self.last_action = action.cpu().numpy()[0]
+            self.last_action = action.cpu().numpy().flatten()
             print(self.last_action.shape)
 
             action = torch.clip(action, -clip_actions, clip_actions).to(self.device)

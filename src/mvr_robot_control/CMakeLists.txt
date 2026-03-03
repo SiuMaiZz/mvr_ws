@@ -20,6 +20,9 @@ find_package(catkin REQUIRED COMPONENTS
   joint_state_controller # 新增
   robot_state_publisher  # 新增
   urdf                 # 新增
+  nav_msgs
+  geometry_msgs
+  tf2_ros
 )
 
 find_package(Eigen3 REQUIRED NO_MODULE)
@@ -98,6 +101,7 @@ add_executable(mvr_robot_control
   src/BotHW.cpp
   src/BotControlLoop.cpp
   src/MechanismSolver.cpp
+  src/StateVizPublisher.cpp
 )
 # 注意：这里添加了 ${catkin_LIBRARIES} 以确保链接到 ROS 库
 target_link_libraries(mvr_robot_control

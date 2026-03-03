@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+
+import os
+import torch
+import torch.nn as nn # type: ignore
+import rospy
+import numpy as np
+import csv
+from mvr_robot_control.msg import ObserveData, ActionData, TestData
+from std_msgs.msg import Header
+from scipy.spatial.transform import Rotation as R
+
+class ROSNode:
+    def __init__(self):
+        rospy.init_node('rl_model_command')
+
+        self.motor_nums = 12
+
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_12dof_v2.csv', mode='w', newline='')
+        self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
+
+        
+
+# obs_buf = torch.cat((
+#             self.command_input,  # 5 = 2D(sin cos) + 3D(vel_x, vel_y, aug_vel_yaw)
+#             q,    # 22
+#             dq,  # 22
+#             self.actions,   # 22
+#             self.base_ang_vel * self.obs_scales.ang_vel,  # 3
+#             self.base_euler_xyz * self.obs_scales.quat,  # 3
+#         ), dim=-1)   
+        self.history_buffer = np.zeros((1, self.motor_nums * 3 + 11), dtype=np.float32)
+        # print(self.history_buffer.shape, 'A')
+        self.buffer_ptr = 0
+
+        self.last_action = np.zeros(self.motor_nums, dtype=np.float32)
+
+        self.obs_raw = None
+        self.phase_raw = None
+        self.action_clipped = None
+        self.action = None
+
+        script_path = os.path.dirname(os.path.realpath(__file__))
+
+        model_relative_path = os.path.join('..', 'model', 'policy_12dof_v1.pt')
+
+        model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
+
+        torch.set_num_threads(4)
+        if torch.cuda.is_available():
+            torch.backends.cudnn.benchmark = True     
+        
+        try:
+            self.model = torch.jit.load(model_path)
+            rospy.loginfo(f"Loading model from: {model_path}")
+            rospy.loginfo("Model loaded successfully")
+        except Exception as e:
+            rospy.logerr(f"Model load failed: {str(e)}")
+            exit(1)
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+        rospy.loginfo(f"Using device: {self.device}")
+        
+        self.sub = rospy.Subscriber('/observe_data', ObserveData, self.callback)
+        self.pub = rospy.Publisher('/control_cmd', ActionData, queue_size=1)
+
+        self.count = 0
+
+        self.obs_scales = {
+            'dof_pos': 1,
+            'dof_vel': 0.05,
+            'ang_vel': 1,
+            'lin_vel': 2,
+            'quat': 1,
+        }
+
+
+        self.default_pos = np.array([
+            -0.25, -0.03, -0.01, -0.5,  0.15, -0.01,
+            0.25,   0.03, 0.01,  0.5, -0.15,  0.01,
+        ], dtype=np.float32)
+
+        self.last_five_joint_pos = np.zeros((5, self.motor_nums), dtype=np.float32)
+        self.smooth_weights = np.array([0.2, 0.2, 0.2, 0.2, 0.2]) 
+
+        self.temp_joint_pos = np.zeros(self.motor_nums, dtype=np.float32)
+
+    def _get_phase(self):
+
+        cycle_time = 1.28
+        dt = 0.01
+        phase = self.count * dt / cycle_time
+        return phase
+    
+    def phase_signal(self):
+        cycle_freq = 1.0  # Hz
+        # 使用 episode_length_buf 确保重置时相位重置
+        current_time = self.count * 0.001
+        phase_angle = 2 * torch.pi * cycle_freq * current_time
+        phase_angle = torch.tensor(phase_angle)
+    
+        sin_wave = torch.sin(phase_angle).unsqueeze(-1)
+        cos_wave = torch.cos(phase_angle).unsqueeze(-1)
+    
+        return torch.cat([sin_wave, cos_wave], dim=-1)
+    
+    def get_gravity_orientation(self,quaternion):
+    
+        qx = quaternion[0]
+        qy = quaternion[1]
+        qz = quaternion[2]
+        qw = quaternion[3]
+        gravity_orientation = np.zeros(3)
+
+        gravity_orientation[0] = 2 * (-qz * qx + qw * qy)
+        gravity_orientation[1] = -2 * (qz * qy + qw * qx)
+        gravity_orientation[2] = 1 - 2 * (qw * qw + qz * qz)
+
+        return gravity_orientation
+    
+    def get_base_heading(quaternion):
+        x, y, z, w = quaternion
+
+
+        heading = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y ** 2 + z ** 2))
+        return heading
+
+    def compute_obs(self, msg):
+
+
+        joint_pos = np.array(msg.joint_pos, dtype=np.float32) * self.obs_scales['dof_pos']
+        joint_vel = np.array(msg.joint_vel, dtype=np.float32) * self.obs_scales['dof_vel']
+        # euler_angles = np.array(msg.quat_float, dtype=np.float32) * self.obs_scales['quat']
+        
+        quat = np.array(msg.quat_float, dtype=np.float32)
+        # r = R.from_quat(quat)
+        # euler_angles = r.as_euler('xyz') * self.obs_scales['quat']
+        gravity_orientation = self.get_gravity_orientation(quat)
+        commands = np.array(msg.commands, dtype=np.float32)
+        ang_vel = np.array(msg.imu_angular_vel) * self.obs_scales['ang_vel']
+
+        phase = self._get_phase()
+        self.phase_raw = phase
+        sin_pos = np.sin(2 * np.pi * phase)
+        cos_pos = np.cos(2 * np.pi * phase)
+
+
+        obs = np.concatenate([
+            np.array(ang_vel, dtype=np.float32),
+            np.array(gravity_orientation, dtype=np.float32),
+            np.array(commands, dtype=np.float32),
+            np.array(joint_pos - self.default_pos, dtype=np.float32),
+            np.array(joint_vel, dtype=np.float32),
+            np.array(self.last_action, dtype=np.float32),
+            np.array([sin_pos, cos_pos], dtype=np.float32),
+            
+        ])
+
+
+        self.obs_raw = obs.flatten()
+        # print(obs.shape)
+        self.history_buffer[self.buffer_ptr] = obs
+        self.buffer_ptr = (self.buffer_ptr + 1) % 1
+        
+        obs_buf = self.history_buffer.reshape(1,-1)
+
+        return obs_buf
+
+
+    def callback(self, msg):
+    
+        decimation = 10
+
+        if self.count % decimation != 0:
+            obs = self.compute_obs(msg)
+            obs_tensor = torch.FloatTensor(obs).to(self.device)
+            action_scale = 0.25
+            clip_actions = 18
+
+            with torch.no_grad():
+                action = self.model(obs_tensor)
+
+            self.last_action = action.cpu().numpy().flatten()
+
+            action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
+            self.action_clipped = action.cpu().numpy().flatten().astype(np.float32)
+
+            action_scaled = action * action_scale
+            action = action_scaled.cpu().numpy().flatten().astype(np.float32)
+            self.action = action
+
+            joint_pos_np = self.default_pos[:self.motor_nums] + action[:self.motor_nums]
+
+            # 保存当前的 joint_pos
+            self.last_five_joint_pos[4] = self.last_five_joint_pos[3]
+            self.last_five_joint_pos[3] = self.last_five_joint_pos[2]
+            self.last_five_joint_pos[2] = self.last_five_joint_pos[1]
+            self.last_five_joint_pos[1] = self.last_five_joint_pos[0]
+            self.last_five_joint_pos[0] = joint_pos_np
+
+            # 对五次的 joint_pos 进行加权平均
+            smoothed_joint_pos_np = np.average(self.last_five_joint_pos, axis=0, weights=self.smooth_weights)
+            self.smoothed_joint_pos = smoothed_joint_pos_np  # 更新平滑值
+
+            self.temp_joint_pos = smoothed_joint_pos_np  # 保存当前的平滑值用于发送
+
+        # 每五步发送一次消息
+        if self.count % decimation == 0:
+            joint_pos = self.temp_joint_pos.astype(np.float32).tolist()
+
+            self.action_msg = ActionData()
+            self.action_msg.joint_pos = joint_pos
+
+            # 写入 CSV
+            self.csv_writer.writerow([self.count, self.phase_raw, self.obs_raw, self.action, joint_pos])
+
+            self.pub.publish(self.action_msg)
+
+            # rospy.loginfo(f"Action  Pos     (joint_pos): {self.action_msg.joint_pos}")
+
+        self.count += 1
+
+        
+
+
+if __name__ == '__main__':
+    node = ROSNode()
+    rospy.spin()

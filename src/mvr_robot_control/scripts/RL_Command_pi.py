@@ -16,11 +16,11 @@ class ROSNode:
 
         self.motor_nums = 10
 
-        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_lstm_10dof_v3.csv', mode='w', newline='')
+        self.csv_file = open('/home/robot007/mvr_ws/src/mvr_robot_control/data/record_pi_v1.csv', mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['step', 'phase', 'obs', 'action_scaled', 'smoothed_joint_pos'])  # 表头
 
-        self.history_buffer = np.zeros((1, self.motor_nums * 3 + 11), dtype=np.float32)
+        self.history_buffer = np.zeros((15, self.motor_nums * 3 + 11), dtype=np.float32)
         # print(self.history_buffer.shape, 'A')
         self.buffer_ptr = 0
 
@@ -33,7 +33,7 @@ class ROSNode:
 
         script_path = os.path.dirname(os.path.realpath(__file__))
 
-        model_relative_path = os.path.join('..', 'model', 'policy_lstm_10dof_v3.pt')
+        model_relative_path = os.path.join('..', 'model', 'pi/policies_V4710_ppo_Jan27_21-00-45_v1/policy_torch.pt')
 
         model_path = os.path.abspath(os.path.join(script_path, model_relative_path))
 
@@ -74,7 +74,7 @@ class ROSNode:
         self.obs_scales = {
             'dof_pos': 1,
             'dof_vel': 0.05,
-            'ang_vel': 0.25,
+            'ang_vel': 1,
             'lin_vel': 2,
             'quat': 1,
         }
@@ -144,6 +144,10 @@ class ROSNode:
         x, y, z, w = quaternion
         heading = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y ** 2 + z ** 2))
         return heading
+    
+    def quaternion_to_euler_array(self,quat):
+        r = R.from_quat(quat)
+        return r.as_euler('xyz')
 
     def compute_obs(self, msg):
 
@@ -152,7 +156,11 @@ class ROSNode:
         joint_vel = np.array(msg.joint_vel, dtype=np.float32) * self.obs_scales['dof_vel']
         # euler_angles = np.array(msg.quat_float, dtype=np.float32) * self.obs_scales['quat']
         
+        
         quat = np.array(msg.quat_float, dtype=np.float32)
+
+        euler = self.quaternion_to_euler_array(quat)
+        euler[euler > np.pi] -= 2 * np.pi
         # r = R.from_quat(quat)
         # euler_angles = r.as_euler('xyz') * self.obs_scales['quat']
         gravity_orientation = self.get_gravity_orientation(quat)
@@ -166,14 +174,13 @@ class ROSNode:
 
 
         obs = np.concatenate([
-            np.array(ang_vel, dtype=np.float32),
-            np.array(gravity_orientation, dtype=np.float32),
+            np.array([sin_pos, cos_pos], dtype=np.float32),
             np.array(commands, dtype=np.float32),
             np.array(joint_pos - self.default_pos, dtype=np.float32),
             np.array(joint_vel, dtype=np.float32),
             np.array(self.last_action, dtype=np.float32),
-            # np.array([sin_pos, cos_pos], dtype=np.float32),
-            
+            np.array(ang_vel, dtype=np.float32),
+            np.array(euler, dtype=np.float32),
         ])
 
         self.obs_raw = obs.flatten()
@@ -201,7 +208,7 @@ class ROSNode:
             with torch.no_grad():
                 action = self.model(obs_tensor)
 
-            self.last_action = action.cpu().numpy()[0]
+            self.last_action = action.cpu().numpy().flatten()
             print(self.last_action.shape)
 
             action = torch.clip(action, -clip_actions, clip_actions).to(self.device)
